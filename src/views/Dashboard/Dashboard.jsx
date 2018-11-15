@@ -9,7 +9,8 @@ import {Checkbox, Radio} from 'react-icheck';
 import {Redirect} from 'react-router-dom'
 var Tooltip = require('chartist-plugin-tooltips')
 var Chartist = require('chartist')
-var options = {
+
+const options = {
   axisX: {showGrid:false,
     showLabel: true,
   },
