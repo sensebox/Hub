@@ -53,21 +53,20 @@ class Dashboard extends Component {
 
   handleJson(title){ // Function which processes the measurement json and extracts only the values 
     var filtered = this.state.json.filter((sensor)=>{ // Gives the Measurements which correspond to the checkbox clicked
-      return sensor.typ == title;
+      return sensor.typ != "placeholder";
     })
     var filtered2 = this.state.json.filter((sensor)=>{
       return sensor.typ=='Beleuchtungsstärke';
     })
+    
     var values = []; // Variable needed for storing
     const selected = this.state.selected
-    filtered[0].data.map((measurement)=>{ 
+    filtered.data.map((measurement)=>{ 
       let label = moment(measurement.createdAt).format("DD.MM.YYYY HH:mm")   ;
       let value = parseFloat(measurement.value);
       // Takes the measurements and extracts only the values
       values.push({Zeitpunkt:label,Wert:value});
    })
-   console.log(filtered2[0].data[2].value)
-   console.log(filtered2[0].data.value)
 
    var i = 0;
    var newState = []

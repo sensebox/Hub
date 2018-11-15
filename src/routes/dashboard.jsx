@@ -2,7 +2,7 @@ import Dashboard from "views/Dashboard/Dashboard";
 import Maps from "views/Maps/Maps";
 import Go from "views/Go/Go"
 import Notifications from "views/Notifications/Notifications";
-
+import Test from "views/Test/Test"
 const dashboardRoutes = [
   {
     path: "/dashboard",
@@ -37,6 +37,13 @@ const dashboardRoutes = [
     icon: "pe-7s-graph",
     component: Dashboard,
     shown:false
+  }, 
+  {
+    path: "/test",
+    name: "Test",
+    icon: "pe-7s-graph",
+    component: Test,
+    shown:true
   }, 
   { redirect: true, path: "/", to: "/go", name: "Go",Component:Go }
 ];
