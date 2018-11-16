@@ -4,9 +4,11 @@ import 'assets/skins/all.css'
 import { Card } from "components/Card/Card.jsx";
 import { StatsCard } from "components/StatsCard/StatsCard.jsx";
 import 'assets/sass/custom.css'
-import {Checkbox, Radio} from 'react-icheck';
+import {Checkbox} from 'react-icheck';
 import {Redirect} from 'react-router-dom'
 import {LineChart,Line,CartesianGrid,XAxis,YAxis,Tooltip,Legend,CartesianAxis} from 'recharts'
+import Radio from 'components/CustomRadio/CustomRadio'
+
 var moment = require('moment')
 
 class Test extends Component {
@@ -16,9 +18,12 @@ class Test extends Component {
             input:'5a30ea5375a96c000f012fe0',
             data:[],
             loading:true,
+            selected:["Temperatur","Luftdruck"]
         }
         this.handleValues=this.handleValues.bind(this)
-        this.processReChart=this.processReChart.bind(this)
+        this.handleRadio = this.handleRadio.bind(this)
+        this.handleRadio2 = this.handleRadio2.bind(this)
+
     }
     componentDidMount(){
         this.handleSubmit()
@@ -67,42 +72,83 @@ class Test extends Component {
       }
 
     handleValues(){
-        // const data = this.state.data;
-        // var obj = new Array(); // Array that holds 
-        // for(var i=0;i<data.length;i++){
-        //     for(var u=0;u<data[i].data.length;u++){
-        //         const measurement = data[i].data[u]; // measurement.value for the actual value 
-        //         if(i==0){
-        //             var arr = new Array(measurement.value);
-        //             obj.push(arr)
-        //         }
-        //         else{
-        //             obj[u].push(measurement.value)
-        //         }
-        //     }
-        // }
-        // obj = this.cutArray(100,obj);
-        // console.log(obj);
-        // this.processReChart(obj)
         const data = this.state.data;
-        var obj = {Zeitpunkt:"22.12"};
+        var arr = [];
         console.log(data)
-    }
+        // Creating labels for the sets
+        data[0].data.map((measurement)=>{
+            let label = moment(measurement.createdAt).format("DD.MM.YYYY HH:mm")   ;
+            arr.push({Zeitpunkt:label})
 
-        /* Beispielobjekt bei 6 Sensoren :
-        {Zeitpunkt:"22.12",Temperatur:12,Luftfeuchte:99,Luftdruck:1000,UV:220,PM10:5,PM25:2,Beleuchtung:6000}
-        Objekt wird erstellt mit den 
-    */
-    processReChart(arr){
+                   })
+        // Pushing all values into one array
+        for(var i = 0;i<data.length;i++){
+            for(var u = 0;u<data[i].data.length;u++){
+                arr[u][data[i].typ]=parseFloat(data[i].data[u].value);
+            }
+        }
+        this.setState({
+            data:this.cutArray(20,arr)
+        })
         
+        console.log(arr)
     }
-
+    handleRadio(e){
+        const id = e.target.id
+        const selected = this.state.selected
+        this.setState({
+            selected:[id,selected[1]]
+        })
+    }
+    handleRadio2(e){
+        const id = e.target.id
+        const selected = this.state.selected
+        this.setState({
+            selected:[selected[0],id]
+        })
+    }
     render(){
-        if(!this.state.loading){            
+        if(!this.state.loading){      
+            console.log(this.state.sensors)      
         return(
             <Grid>
                 <Row>
                     <button onClick={()=>this.handleValues()}>Des</button>
+                    <Col lg={3} md={6}>
+                    <ul>
+                        {this.state.sensors.map((sensor)=>{
+                            return(
+                        <li key={sensor._id}>
+                        <Radio
+                                label={sensor.title}
+                                key={sensor._id}
+                                name="sensoren"
+                                onChange={this.handleRadio}
+                                number={sensor.title}
+                                
+                                />
+                      </li>
+                        )})}
+                    </ul>
+                    </Col>
+                    <Col lg={3} md={6}>
+                    <ul>
+                        {this.state.sensors.map((sensor)=>{
+                            return(
+                        <li key={sensor._id}>
+                        <Radio
+                                label={sensor.title}
+                                key={sensor._id}
+                                name="sensoren"
+                                onChange={this.handleRadio2}
+                                number={sensor.title}
+                                
+                                />
+                      </li>
+                        )})}
+                    </ul>
+                    </Col>
+                    
                 </Row>
                 <Row>
                 <LineChart width={1000} height={500} data={this.state.data}>
@@ -110,8 +156,8 @@ class Test extends Component {
                       <YAxis yAxisId={0} />
                       <YAxis yAxisId={1} orientation="right"/>
                       <XAxis dataKey="Zeitpunkt"/>
-                      <Line yAxisId={0} type="monotone" dataKey="Wert1" stroke="#8884d8"/>
-                      <Line yAxisId={1} type="monotone" dataKey="Wert2" stroke="#4EAF47"/>
+                      <Line yAxisId={0} type="monotone" dataKey={this.state.selected[0]} stroke="#8884d8"/>
+                      <Line yAxisId={1} type="monotone" dataKey={this.state.selected[1]} stroke="#4EAF47"/>
                       <Tooltip/>
                       <Legend/>
                     </LineChart>

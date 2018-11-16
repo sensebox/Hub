@@ -11,7 +11,7 @@ class Go extends Component {
         super()
         this.state={
             input:'5a30ea5375a96c000f012fe0',
-            json:[{typ:"placeholder",data:"placeholder"}],
+            json:[],
             loading:true,
         }
         this.handleInput = this.handleInput.bind(this);

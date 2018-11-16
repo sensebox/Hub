@@ -51,6 +51,28 @@ class Dashboard extends Component {
 
   }
 
+  handleValues(){
+    const data = this.state.json;
+    console.log(data)
+    var arr = [];
+
+    // Creating labels for the sets
+    data[0].data.map((measurement)=>{
+        let label = moment(measurement.createdAt).format("DD.MM.YYYY HH:mm")   ;
+        arr.push({Zeitpunkt:label})
+
+               })
+    // Pushing all values into one array
+    for(var i = 0;i<data.length;i++){
+        for(var u = 0;u<data[i].data.length;u++){
+            arr[u][data[i].typ]=parseFloat(data[i].data[u].value);
+        }
+    }
+    console.log(arr)
+    return arr;  
+}
+
+
   handleJson(title){ // Function which processes the measurement json and extracts only the values 
     var filtered = this.state.json.filter((sensor)=>{ // Gives the Measurements which correspond to the checkbox clicked
       return sensor.typ != "placeholder";
@@ -80,18 +102,6 @@ class Dashboard extends Component {
    return values
   }
 
-  // Not used .. 
-  addLabels(){
-    //         
-    var labels = []
-    this.state.json[1].data.map((measurement)=>{
-      let label = moment(measurement.createdAt).format("MMM Do YY");
-      labels.push(label)
-    })
-    labels = this.cutArray(20,labels)
-    return labels
-  }
-
   removeActiveBoxes(){
     const checkedBoxes = document.getElementsByClassName("checked")
     if(checkedBoxes.length>0){
@@ -104,7 +114,7 @@ class Dashboard extends Component {
     this.setState({ has_error: true });
   }
   addToGraph(title){
-    var values = this.handleJson(title);
+    var values = this.handleValues();
     values = this.cutArray(20,values);
     this.setState({
       data:values,
@@ -172,8 +182,8 @@ class Dashboard extends Component {
                       <YAxis yAxisId={1} orientation="right"/>
 
                       <XAxis dataKey="Zeitpunkt"/>
-                      <Line yAxisId={0} type="monotone" dataKey="Wert1" stroke="#8884d8"/>
-                      <Line yAxisId={1} type="monotone" dataKey="Wert2" stroke="#4EAF47"/>
+                      <Line yAxisId={0} type="monotone" dataKey="Temperatur" stroke="#8884d8"/>
+                      <Line yAxisId={1} type="monotone" dataKey="Luftdruck" stroke="#4EAF47"/>
 
                       <Tooltip/>
                       <Legend/>
