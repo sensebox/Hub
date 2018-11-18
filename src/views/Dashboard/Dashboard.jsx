@@ -22,7 +22,8 @@ class Dashboard extends Component {
       checkboxChecked:false,
       senseBox:props.location.query.content,
       json : props.location.query.comments,
-      hasError:false
+      hasError:false,
+      selectedSensors=["Temperatur","Luftdruck"]
     }
     this.handleIsItChecked = this.handleIsItChecked.bind(this);
   }
@@ -50,28 +51,6 @@ class Dashboard extends Component {
     return arr;
 
   }
-
-  handleValues(){
-    const data = this.state.json;
-    console.log(data)
-    var arr = [];
-
-    // Creating labels for the sets
-    data[0].data.map((measurement)=>{
-        let label = moment(measurement.createdAt).format("DD.MM.YYYY HH:mm")   ;
-        arr.push({Zeitpunkt:label})
-
-               })
-    // Pushing all values into one array
-    for(var i = 0;i<data.length;i++){
-        for(var u = 0;u<data[i].data.length;u++){
-            arr[u][data[i].typ]=parseFloat(data[i].data[u].value);
-        }
-    }
-    console.log(arr)
-    return arr;  
-}
-
 
   handleJson(title){ // Function which processes the measurement json and extracts only the values 
     var filtered = this.state.json.filter((sensor)=>{ // Gives the Measurements which correspond to the checkbox clicked
@@ -102,14 +81,6 @@ class Dashboard extends Component {
    return values
   }
 
-  removeActiveBoxes(){
-    const checkedBoxes = document.getElementsByClassName("checked")
-    if(checkedBoxes.length>0){
-      for(var i = 0 ; i<checkedBoxes.length;i++){
-        checkedBoxes[i].classList.remove("checked")
-          }
-    }
-  }
   componentDidCatch(error, info){
     this.setState({ has_error: true });
   }
@@ -121,6 +92,7 @@ class Dashboard extends Component {
       range:"Von " + values[0].Zeitpunkt +" bis " + values[values.length-1].Zeitpunkt
     })
   }
+
 
   // Function that is called whenever a checkbox is clicked 
   handleIsItChecked(e) {
@@ -143,6 +115,21 @@ class Dashboard extends Component {
     }
     
   }
+  // handlers for the 2 radio button groups
+  handleRadio(e){
+    const id = e.target.dataset.title
+    const selected = this.state.selected
+    this.setState({
+        selected:[id,selected[1]]
+    })
+  }
+handleRadio2(e){        
+    const id = e.target.dataset.title
+    const selected = this.state.selectedSensors
+    this.setState({
+        selected:[selected[0],id]
+    })
+  }
 
   render() {
     if(this.state.hasError){
@@ -156,13 +143,23 @@ class Dashboard extends Component {
             <Col key={sensor._id} lg={3} md={6}>
              <StatsCard             
               bigIcon={
-                <Checkbox
-                    id={sensor.title}
-                    onClick={this.handleIsItChecked}
-                    checkboxClass="icheckbox_square-green"
-                    increaseArea="20%"
-                    label="Show"
-                    />}
+                <div className="radio_group">
+                <Radio
+                label={sensor.title}
+                key={sensor._id}
+                name="sensoren1"
+                onChange={this.handleRadio}
+                number={sensor.title}
+                data-title = {sensor.title}
+            />
+            <Radio
+            label={sensor.title}
+            key={sensor._id}
+            name="sensoren2"
+            onChange={this.handleRadio2}
+            number={sensor.title+"2"}
+            data-title = {sensor.title}
+            /></div>}
                 statsIconText="Updated just now" statsText={sensor.title} statsValue={sensor.lastMeasurement.value+" "+sensor.unit}/>
             </Col>
           ))}  

@@ -8,16 +8,19 @@ import {Checkbox} from 'react-icheck';
 import {Redirect} from 'react-router-dom'
 import {LineChart,Line,CartesianGrid,XAxis,YAxis,Tooltip,Legend,CartesianAxis} from 'recharts'
 import Radio from 'components/CustomRadio/CustomRadio'
-import {data} from 'variables/data.jsx'
+import data from 'variables/data.jsx'
+import * as senseboxdata from "variables/sensebox.json"
 var moment = require('moment')
 
-class Test extends Component {
+class TestOffline extends Component {
     constructor(props){
         super()
         this.state={
             input:'5a30ea5375a96c000f012fe0',
+            json:data[0],
             data:[],
-            loading:true,
+            sensebox:senseboxdata,
+            loading:false,
             selected:["Temperatur","Luftdruck"]
         }
         this.handleValues=this.handleValues.bind(this)
@@ -26,30 +29,17 @@ class Test extends Component {
 
     }
     componentDidMount(){
-       //  this.handleSubmit()
-       console.log(data);
-       
+
+        this.handleValues();
     }
 
     handleSubmit(){       
-        let url = 'https://api.opensensemap.org/boxes/5a30ea5375a96c000f012fe0'
-        fetch(url)      // Fetching Data about the senseBox
-        .catch((error)=>{
-            console.warn(error)
-            return null
-        })
-        .then((response)=>response.json())
-        .then((json)=>this.setState({
-            senseBoxData:json,
-            sensors:json.sensors
-                    }))
-        .then(()=>{
         this.state.sensors.map((sensor)=>{            
             this.handleStats(sensor._id,sensor.title);
-        })})
-        .then(()=>this.setState({loading:false}))
-
+        })
     }
+
+    
 
     handleStats(sensorid,title){
         let url = 'https://api.opensensemap.org/boxes/5a30ea5375a96c000f012fe0/data/'+sensorid;
@@ -72,62 +62,68 @@ class Test extends Component {
         return arr;
     
       }
-
+    // Functions that processes data 
+    // is to be called after the data got requested
     handleValues(){
-        const data = this.state.data;
+        // Calling variables to use in the algorithm
+        const data = this.state.json;
         var arr = [];
-        console.log(data)
-        // Creating labels for the sets
+        // Creating labels for the sets 
+        // important: all arrays must be same size or are not allowed to be bigger than the first array => TODO 
         data[0].data.map((measurement)=>{
             let label = moment(measurement.createdAt).format("DD.MM.YYYY HH:mm")   ;
             arr.push({Zeitpunkt:label})
 
                    })
         // Pushing all values into one array
+        // arr[0]data["Temperatur"]=22.88
         for(var i = 0;i<data.length;i++){
             for(var u = 0;u<data[i].data.length;u++){
                 arr[u][data[i].typ]=parseFloat(data[i].data[u].value);
             }
         }
+        // Set state to the new calculated array 
         this.setState({
-            data:this.cutArray(20,arr)
+            data:arr
         })
-        
-        console.log(arr)
     }
+    // handlers for the 2 radio button groups
     handleRadio(e){
-        const id = e.target.id
+        const id = e.target.dataset.title
         const selected = this.state.selected
         this.setState({
             selected:[id,selected[1]]
         })
     }
-    handleRadio2(e){
-        const id = e.target.id
+    handleRadio2(e){        
+        const id = e.target.dataset.title
         const selected = this.state.selected
         this.setState({
             selected:[selected[0],id]
         })
     }
     render(){
+        if(this.state.loading){
+            return(
+                <p>Ja des</p>
+            )        }
         if(!this.state.loading){      
-            console.log(this.state.sensors)      
         return(
             <Grid>
                 <Row>
                     <button onClick={()=>this.handleValues()}>Des</button>
                     <Col lg={3} md={6}>
                     <ul>
-                        {this.state.sensors.map((sensor)=>{
+                        {this.state.sensebox.sensors.map((sensor)=>{
                             return(
                         <li key={sensor._id}>
                         <Radio
                                 label={sensor.title}
                                 key={sensor._id}
-                                name="sensoren"
+                                name="sensoren1"
                                 onChange={this.handleRadio}
-                                number={sensor.title}
-                                
+                                number={sensor.title} 
+                                data-title={sensor.title}
                                 />
                       </li>
                         )})}
@@ -135,17 +131,17 @@ class Test extends Component {
                     </Col>
                     <Col lg={3} md={6}>
                     <ul>
-                        {this.state.sensors.map((sensor)=>{
+                        {this.state.sensebox.sensors.map((sensor)=>{
                             return(
                         <li key={sensor._id}>
                         <Radio
                                 label={sensor.title}
                                 key={sensor._id}
-                                name="sensoren"
+                                name="sensoren2"
                                 onChange={this.handleRadio2}
-                                number={sensor.title}
-                                
-                                />
+                                number={sensor.title+"2"}
+                                data-title = {sensor.title}
+                            />
                       </li>
                         )})}
                     </ul>
@@ -177,4 +173,4 @@ class Test extends Component {
     }
 }
 
-export default Test
+export default TestOffline
