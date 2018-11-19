@@ -10,8 +10,9 @@ class Go extends Component {
     constructor(props){
         super()
         this.state={
-            input:'5a30ea5375a96c000f012fe0',
-            json:[{typ:"placeholder",data:"placeholder"}]
+            input:'5bb610bf043f3f001b6a4c53',
+            json:[],
+            loading:true,
         }
         this.handleInput = this.handleInput.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -39,6 +40,7 @@ class Go extends Component {
         this.state.sensors.map((sensor)=>{
             this.handleStats(sensor._id,sensor.title);
         })})
+        .then(()=>this.setState({loading:false}))
     }
 
     handleStats(sensorid,title){
@@ -51,12 +53,12 @@ class Go extends Component {
         .then((response)=>response.json())
         .then((json)=>this.setState((prevState)=>{
             json:prevState.json.push({typ:title,data:json})
-        })
-        );
-        console.log(this.state.json);
-        
+        }))
 
     }
+
+
+  
     render(){
         return(
         <Grid fluid>
@@ -75,14 +77,17 @@ class Go extends Component {
             />
             </Col>
             <Col md={6}> 
-            <Button bsStyle="success" onClick={this.handleSubmit}>Submit</Button>
+        { this.state.loading ?             
+            <Button bsStyle="success" onClick={this.handleSubmit}>Lade Daten</Button>
+                :
             <Link to={{pathname:`/senseBox`,query: {
                 title:"senseboxData",
                 content:this.state.senseBoxData,
                 comments:this.state.json
             }}}>
-                <Button bsStyle="success">Submit</Button>
-            </Link>
+                <Button bsStyle="success">Weiter</Button>
+            </Link>}
+            
             </Col>
 
             </Row>
