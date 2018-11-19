@@ -39,8 +39,6 @@ class TestOffline extends Component {
         })
     }
 
-    
-
     handleStats(sensorid,title){
         let url = 'https://api.opensensemap.org/boxes/5a30ea5375a96c000f012fe0/data/'+sensorid;
         fetch(url)
@@ -82,6 +80,7 @@ class TestOffline extends Component {
                 arr[u][data[i].typ]=parseFloat(data[i].data[u].value);
             }
         }
+        arr = arr.reverse();
         // Set state to the new calculated array 
         this.setState({
             data:arr

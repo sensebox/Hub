@@ -4,6 +4,7 @@ import Go from "views/Go/Go"
 import Notifications from "views/Notifications/Notifications";
 import Test from "views/Test/Test"
 import TestOffline from "views/TestOffline/TestOffline"
+import Live from "views/Live/Live"
 const dashboardRoutes = [
   {
     path: "/dashboard",
@@ -44,13 +45,20 @@ const dashboardRoutes = [
     name: "Test",
     icon: "pe-7s-graph",
     component: Test,
-    shown:true
+    shown:false
   }, 
   {
     path: "/testfloffline",
     name: "Test Offline",
     icon: "pe-7s-graph",
     component: TestOffline,
+    shown:false
+  }, 
+  {
+    path: "/live",
+    name: "Live",
+    icon: "pe-7s-timer",
+    component: Live,
     shown:true
   }, 
   { redirect: true, path: "/", to: "/go", name: "Go",Component:Go }
