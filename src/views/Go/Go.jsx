@@ -10,7 +10,7 @@ class Go extends Component {
     constructor(props){
         super()
         this.state={
-            input:'5a30ea5375a96c000f012fe0',
+            input:'5bb610bf043f3f001b6a4c53',
             json:[],
             loading:true,
         }
@@ -54,33 +54,11 @@ class Go extends Component {
         .then((json)=>this.setState((prevState)=>{
             json:prevState.json.push({typ:title,data:json})
         }))
-        .then(()=>this.handleValues);        
+
     }
 
 
-  handleValues(){
-    // Calling variables to use in the algorithm
-    const data = this.state.json;
-    var arr = [];
-    // Creating labels for the sets 
-    // important: all arrays must be same size or are not allowed to be bigger than the first array => TODO 
-    data[0].data.map((measurement)=>{
-        let label = moment(measurement.createdAt).format("DD.MM.YYYY HH:mm")   ;
-        arr.push({Zeitpunkt:label})
-
-               })
-    // Pushing all values into one array
-    // arr[0]data["Temperatur"]=22.88
-    for(var i = 0;i<data.length;i++){
-        for(var u = 0;u<data[i].data.length;u++){
-            arr[u][data[i].typ]=parseFloat(data[i].data[u].value);
-        }
-    }
-    // Set state to the new calculated array 
-    this.setState({
-        json:arr
-    })
-  }
+  
     render(){
         return(
         <Grid fluid>

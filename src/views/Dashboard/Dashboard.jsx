@@ -5,9 +5,9 @@ import 'assets/skins/all.css'
 import { Card } from "components/Card/Card.jsx";
 import { StatsCard } from "components/StatsCard/StatsCard.jsx";
 import 'assets/sass/custom.css'
-import {Checkbox, Radio} from 'react-icheck';
 import {Redirect} from 'react-router-dom'
 import {LineChart,Line,CartesianGrid,XAxis,YAxis,Tooltip,Legend,CartesianAxis} from 'recharts'
+import Radio from 'components/CustomRadio/CustomRadio'
 
 
 
@@ -20,12 +20,16 @@ class Dashboard extends Component {
       data:[], // Array that contains the data that is visualized in the graph 
       selected:"Select Sensor",
       checkboxChecked:false,
+      graph_data:[],
       senseBox:props.location.query.content,
       json : props.location.query.comments,
       hasError:false,
       selectedSensors:["Temperatur","Luftdruck"]
     }
     this.handleIsItChecked = this.handleIsItChecked.bind(this);
+    this.handleRadio = this.handleRadio.bind(this);
+    this.handleRadio2 = this.handleRadio2.bind(this);
+    this.handleValues = this.handleValues.bind(this)
   }
   createLegend(json) {
     var legend = [];
@@ -38,7 +42,7 @@ class Dashboard extends Component {
     return legend;
   }
   componentDidMount(){
-    
+    this.handleValues();
   }
   componentDidUpdate(){
 
@@ -115,19 +119,43 @@ class Dashboard extends Component {
     }
     
   }
+
+  handleValues(){
+    // Calling variables to use in the algorithm
+    var data = this.state.json;
+    console.log(data)
+    var arr = [];
+    // Creating labels for the sets 
+    // important: all arrays must be same size or are not allowed to be bigger than the first array => TODO 
+    data[0].data.map((measurement)=>{
+        let label = moment(measurement.createdAt).format("DD.MM.YYYY HH:mm")   ;
+        arr.push({Zeitpunkt:label})
+               })
+    // Pushing all values into one array
+    // arr[0]data["Temperatur"]=22.88
+    for(var i = 0;i<data.length;i++){
+        for(var u = 0;u<data[i].data.length;u++){
+            arr[u][data[i].typ]=parseFloat(data[i].data[u].value);
+        }
+    }
+    // Set state to the new calculated array 
+    this.setState({
+        graph_data:this.cutArray(10,arr)
+    })
+  }
   // handlers for the 2 radio button groups
   handleRadio(e){
     const id = e.target.dataset.title
-    const selected = this.state.selected
+    const selected = this.state.selectedSensors
     this.setState({
-        selected:[id,selected[1]]
+        selectedSensors:[id,selected[1]]
     })
   }
 handleRadio2(e){        
     const id = e.target.dataset.title
     const selected = this.state.selectedSensors
     this.setState({
-        selected:[selected[0],id]
+        selectedSensors:[selected[0],id]
     })
   }
 
@@ -144,28 +172,14 @@ handleRadio2(e){
              <StatsCard             
               bigIcon={
                 <div className="radio_group">
-                <Radio
-                label={sensor.title}
-                key={sensor._id}
-                name="sensoren1"
-                onChange={this.handleRadio}
-                number={sensor.title}
-                data-title = {sensor.title}
-            />
-            <Radio
-            label={sensor.title}
-            key={sensor._id+"e"}
-            name="sensoren2"
-            onChange={this.handleRadio2}
-            number={sensor.title+"2"}
-            data-title = {sensor.title}
-            /></div>}
+
+            </div>}
                 statsIconText="Updated just now" statsText={sensor.title} statsValue={sensor.lastMeasurement.value+" "+sensor.unit}/>
             </Col>
           ))}  
           </Row>
           <Row>
-            <Col md={12}>
+            <Col md={10}>
             <Card
                 statsIcon="fa fa-history"
                 id="chartHours"
@@ -173,20 +187,52 @@ handleRadio2(e){
                 category={this.state.range}
                 stats="Updated 1 minute ago"
                 content={
-                    <LineChart width={1500} height={500} data={this.state.json}>
+                    <LineChart width={1500} height={500} data={this.state.graph_data}>
                       <CartesianGrid stroke="#ccc" />
                       <YAxis yAxisId={0} />
                       <YAxis yAxisId={1} orientation="right"/>
-
                       <XAxis dataKey="Zeitpunkt"/>
                       <Line yAxisId={0} type="monotone" dataKey={this.state.selectedSensors[0]} stroke="#8884d8"/>
                       <Line yAxisId={1} type="monotone" dataKey={this.state.selectedSensors[1]} stroke="#4EAF47"/>
-
                       <Tooltip/>
                       <Legend/>
                     </LineChart>
                 }
                 />
+            </Col>
+            <Col md={2}>
+                <ul>
+                  {this.state.senseBox.sensors.map((sensor)=>{
+                    return(
+                      <li key ={sensor._id}> 
+                          <Radio
+                        label={sensor.title}
+                        name="sensoren1"
+                        onChange={this.handleRadio}
+                        number={sensor.title}
+                        data-title = {sensor.title}
+                        />
+                      </li>
+                    )
+                  })}
+                </ul>
+                <hr></hr>
+                <ul>
+                  {this.state.senseBox.sensors.map((sensor)=>{
+                    return(
+                      <li key={sensor._id +"e"}>
+                      <Radio
+                        label={sensor.title}
+                        key={sensor._id+"e"}
+                        name="sensoren2"
+                        onChange={this.handleRadio2}
+                        number={sensor.title+"2"}
+                        data-title = {sensor.title}
+                      />
+                    </li>
+                    )
+                  })}
+                </ul>
             </Col>
 
           </Row>
