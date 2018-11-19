@@ -55,7 +55,6 @@ class Go extends Component {
             json:prevState.json.push({typ:title,data:json})
         }))
         .then(()=>this.handleValues);        
-
     }
 
 

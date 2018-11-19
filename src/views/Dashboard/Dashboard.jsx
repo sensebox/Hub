@@ -23,7 +23,7 @@ class Dashboard extends Component {
       senseBox:props.location.query.content,
       json : props.location.query.comments,
       hasError:false,
-      selectedSensors=["Temperatur","Luftdruck"]
+      selectedSensors:["Temperatur","Luftdruck"]
     }
     this.handleIsItChecked = this.handleIsItChecked.bind(this);
   }
@@ -154,7 +154,7 @@ handleRadio2(e){
             />
             <Radio
             label={sensor.title}
-            key={sensor._id}
+            key={sensor._id+"e"}
             name="sensoren2"
             onChange={this.handleRadio2}
             number={sensor.title+"2"}
@@ -173,14 +173,14 @@ handleRadio2(e){
                 category={this.state.range}
                 stats="Updated 1 minute ago"
                 content={
-                    <LineChart width={1500} height={500} data={this.state.data}>
+                    <LineChart width={1500} height={500} data={this.state.json}>
                       <CartesianGrid stroke="#ccc" />
                       <YAxis yAxisId={0} />
                       <YAxis yAxisId={1} orientation="right"/>
 
                       <XAxis dataKey="Zeitpunkt"/>
-                      <Line yAxisId={0} type="monotone" dataKey="Temperatur" stroke="#8884d8"/>
-                      <Line yAxisId={1} type="monotone" dataKey="Luftdruck" stroke="#4EAF47"/>
+                      <Line yAxisId={0} type="monotone" dataKey={this.state.selectedSensors[0]} stroke="#8884d8"/>
+                      <Line yAxisId={1} type="monotone" dataKey={this.state.selectedSensors[1]} stroke="#4EAF47"/>
 
                       <Tooltip/>
                       <Legend/>
