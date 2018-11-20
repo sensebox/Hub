@@ -59,7 +59,7 @@ class Live extends Component {
             _notificationSystem: null,
             listening:false,
             lastMeasurement:null,
-            timestep:0
+            timestep:0,
 
         }
         this.generateId = this.generateId.bind(this);
@@ -204,7 +204,7 @@ class Live extends Component {
                                         }
                                     </Row>
                                     <Row>
-                                        <Button onClick={()=>this.clearGraph()} className="eric_button" bsStyle="danger">Clear data</Button>
+                                        <Button onClick={()=>this.clearGraph()} disabled={this.state.listening} className="eric_button" bsStyle="danger">Clear data</Button>
                                     </Row>
                                     </Grid>
                                 }
