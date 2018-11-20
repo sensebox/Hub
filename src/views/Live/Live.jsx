@@ -192,9 +192,6 @@ class Live extends Component {
                                 content={
                                     <Grid fluid>
                                     <Row>
-                                        <Button onClick={()=>this.addValue()} className="eric_button" bsStyle="info">Add random value</Button>
-                                    </Row>
-                                    <Row>
                                         {this.state.generated ?
                                         <p>5a30ea5375a96c000f012fe0</p> : 
                                         <Button onClick={()=>this.generateId()} className="eric_button" bsStyle="success">Generate SensorID</Button>
