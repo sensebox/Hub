@@ -7,6 +7,9 @@ import { Card } from "components/Card/Card.jsx";
 import NotificationSystem from 'react-notification-system';
 import {style} from "variables/Variables.jsx";
 import 'assets/sass/custom.css'
+// import mqtt from 'mqtt'
+
+var mqtt = require('mqtt')
 /*
     The live page should show live measurements by a sensor
     the visualization will be refreshed everytime a new measurement comes in 
@@ -17,7 +20,7 @@ import 'assets/sass/custom.css'
         => Do research on mqtt 
         => set up an mqtt server on raspbian 
         => 'subscrice' to the mqtt server and listen for changes 
-        => display these changes in a graph 
+        => dissplay these changes in a graph 
 
 */
 
@@ -27,15 +30,8 @@ class Live extends Component {
         this.state={
             generated:false,
             data:[
-                {Zeit:"1",value:10},
-                {Zeit:"2",value:8},
-                {Zeit:"3",value:12},
-                {Zeit:"4",value:6},
-                {Zeit:"5",value:14},
-                {Zeit:"6",value:4},
-                {Zeit:"7",value:16},
-                {Zeit:"8",value:12},
-                {Zeit:"9",value:5},
+                {Zeit:"1",value:24},
+
             ],
             loading:false,
             _notificationSystem: null,
@@ -47,11 +43,11 @@ class Live extends Component {
         this.handleMQTT = this.handleMQTT.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
         this.stopInterval = this.stopInterval.bind(this);
+        this.handleBroker = this.handleBroker.bind(this);
 
     }
     componentDidMount(){
         this.setState({_notificationSystem: this.refs.notificationSystem})
-
     }
     componentWillUnmount(){
         clearInterval(this.interval)
@@ -76,7 +72,7 @@ class Live extends Component {
             autoDismiss: 5,
         });
         this.setState({listening:true})
-        this.interval = setInterval(() => this.addValue(), 5000);
+        this.interval = setInterval(() => this.handleBroker(), 1000);
 
     }
     stopInterval(position){
@@ -95,8 +91,9 @@ class Live extends Component {
         this.setState({listening:false})
         clearInterval(this.interval)
     }
-    async addValue(){
-        var randomNumber = Math.floor ((Math.random() * 10)+1);
+    async addValue(value){
+        console.log(value)
+        var randomNumber = parseFloat(value);
         var continousTime = parseFloat(this.state.data[this.state.data.length-1].Zeit) + 1
         continousTime = continousTime.toString();
         var newData = this.state.data
@@ -109,6 +106,22 @@ class Live extends Component {
             data:newData,
             loading:false
         })
+    }
+     handleBroker(){
+        var client = mqtt.connect('mqtt://10.0.1.95:1884')
+        var that = this;
+        client.on('connect', function () {
+            client.subscribe('temperatur', function (err,value) {
+            if (!err) {
+            }
+            })
+        })
+      
+      client.on('message', function (topic, message) {
+        // message is Buffer
+        that.addValue(message.toString())
+        client.end()
+      })   
     }
 
     render(){
@@ -129,7 +142,7 @@ class Live extends Component {
                         content={
                             <LineChart width={1200} height={500} data={this.state.data}>
                             <CartesianGrid stroke="#ccc" />
-                            <YAxis yAxisId={0} />
+                            <YAxis domain={(22.5,23.7)} yAxisId={0} />
                             <XAxis dataKey="Zeit"/>
                             <Line isAnimationActive={false} yAxisId={0} type="monotone" dot={{ fill:'#8884d8', stroke: '#8884d8', strokeWidth: 1 }} dataKey={"value"} stroke="#8884d8"/>
                             <Tooltip/>
