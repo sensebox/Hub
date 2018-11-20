@@ -59,7 +59,7 @@ const dashboardRoutes = [
     name: "Live",
     icon: "pe-7s-timer",
     component: Live,
-    shown:true
+    shown:false
   }, 
   { redirect: true, path: "/", to: "/go", name: "Go",Component:Go }
 ];
