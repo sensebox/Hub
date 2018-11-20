@@ -7,9 +7,20 @@ import { Card } from "components/Card/Card.jsx";
 import NotificationSystem from 'react-notification-system';
 import {style} from "variables/Variables.jsx";
 import 'assets/sass/custom.css'
+import ReactHighcharts from 'react-highcharts'
 // import mqtt from 'mqtt'
 
 var mqtt = require('mqtt')
+var config = {
+    xAxis: {
+      categories: []
+    },
+    series: [{
+      data: []
+    }]
+  };
+var last = 0 
+var time = 0 
 /*
     The live page should show live measurements by a sensor
     the visualization will be refreshed everytime a new measurement comes in 
@@ -33,9 +44,19 @@ class Live extends Component {
                 {Zeit:"1",value:24},
 
             ],
+            config:{
+                xAxis:{
+                    categories:[]
+                },
+                series:[{
+                    data:[]
+                }]
+            },
             loading:false,
             _notificationSystem: null,
-            listening:false
+            listening:false,
+            lastMeasurement:null,
+            timestep:0
 
         }
         this.generateId = this.generateId.bind(this);
@@ -48,6 +69,11 @@ class Live extends Component {
     }
     componentDidMount(){
         this.setState({_notificationSystem: this.refs.notificationSystem})
+
+
+        }
+    componentDidUpdate(){
+        console.log(this.refs.chart.getChart())
     }
     componentWillUnmount(){
         clearInterval(this.interval)
@@ -118,8 +144,10 @@ class Live extends Component {
         })
       
       client.on('message', function (topic, message) {
-        // message is Buffer
-        that.addValue(message.toString())
+          var value = parseFloat(message.toString());
+          let chart = that.refs.chart.getChart()
+          chart.series[0].addPoint(({y: value}))
+
         client.end()
       })   
     }
@@ -140,14 +168,7 @@ class Live extends Component {
                         stats="Listening for new data"
                         statsIcon="pe-7s-video"
                         content={
-                            <LineChart width={1200} height={500} data={this.state.data}>
-                            <CartesianGrid stroke="#ccc" />
-                            <YAxis domain={(22.5,23.7)} yAxisId={0} />
-                            <XAxis dataKey="Zeit"/>
-                            <Line isAnimationActive={false} yAxisId={0} type="monotone" dot={{ fill:'#8884d8', stroke: '#8884d8', strokeWidth: 1 }} dataKey={"value"} stroke="#8884d8"/>
-                            <Tooltip/>
-                            <Legend/>
-                          </LineChart>
+                            <ReactHighcharts config={config} ref="chart"></ReactHighcharts>
                         }
                         />
                 </Col>
@@ -160,8 +181,8 @@ class Live extends Component {
                             statsIcon = "pe-7s-video"
                             content ={
                                 <ul>
-                                    <li> Value : {this.state.data[this.state.data.length-1].value}</li>
-                                    <li> Timestep : {this.state.data[this.state.data.length-1].Zeit} </li>
+                                    <li> Value : {last}</li>
+                                    <li> Timestep : {time} </li>
                                     <li>Sensor ID: 5a30ea5375a96c000f012fe0 </li>
                                     <li>Information : Number</li>
                                 </ul>
