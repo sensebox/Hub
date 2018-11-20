@@ -1,6 +1,5 @@
 # senseBox Hub 
-
-This repository contains the code of the Hub that is designed to hold several apps that were built in the senseBox project. To get more information about openSenseMap and senseBox visit the before mentioned links or have a look at this [video](https://www.youtube.com/watch?v=I8ZeT6hzjKQ) or read the [openSenseMap](https://osem.books.sensebox.de/) chapter in our [books](https://books.sensebox.de/).
+ This repository contains the code of the Hub that is designed to hold several apps that were built in the senseBox project. To get more information about openSenseMap and senseBox visit the before mentioned links or have a look at this [video](https://www.youtube.com/watch?v=I8ZeT6hzjKQ) or read the [openSenseMap](https://osem.books.sensebox.de/) chapter in our [books](https://books.sensebox.de/).
 
 ![Dashboard](screen.png)
 
@@ -35,5 +34,4 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 Thanks to [creativeTim](https://www.creative-tim.com/) for publishing his [Light Bootstrap Dashboard](https://demos.creative-tim.com/light-bootstrap-dashboard-react/#/dashboard) with which the basis of this app has been built.
 
 [senseBox](https://sensebox.de/)
-
-[openSenseMap](https://opensensemap.org/)
+/)
