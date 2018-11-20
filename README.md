@@ -34,5 +34,4 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 Thanks to [creativeTim](https://www.creative-tim.com/) for publishing his [Light Bootstrap Dashboard](https://demos.creative-tim.com/light-bootstrap-dashboard-react/#/dashboard) with which the basis of this app has been built.
 
 [senseBox](https://sensebox.de/)
-
-[openSenseMap](https://opensensemap.org/)
+/)
