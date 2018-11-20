@@ -17,7 +17,10 @@ var config = {
     },
     series: [{
       data: []
-    }]
+    }],
+    title:{
+        text:"Live Messwerte"
+    }
   };
 var last = 0 
 var time = 0 
@@ -56,16 +59,15 @@ class Live extends Component {
             _notificationSystem: null,
             listening:false,
             lastMeasurement:null,
-            timestep:0
+            timestep:0,
 
         }
         this.generateId = this.generateId.bind(this);
-        this.addValue = this.addValue.bind(this);
         this.handleMQTT = this.handleMQTT.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
         this.stopInterval = this.stopInterval.bind(this);
         this.handleBroker = this.handleBroker.bind(this);
-
+        this.clearGraph = this.clearGraph.bind(this);
     }
     componentDidMount(){
         this.setState({_notificationSystem: this.refs.notificationSystem})
@@ -117,26 +119,18 @@ class Live extends Component {
         this.setState({listening:false})
         clearInterval(this.interval)
     }
-    async addValue(value){
-        console.log(value)
-        var randomNumber = parseFloat(value);
-        var continousTime = parseFloat(this.state.data[this.state.data.length-1].Zeit) + 1
-        continousTime = continousTime.toString();
-        var newData = this.state.data
-        newData.push({Zeit:continousTime,value:randomNumber})
-        await this.setState({
-            data:[],
-            loading:true
-        })
-        this.setState({
-            data:newData,
-            loading:false
-        })
+    clearGraph(){
+        let chart = this.refs.chart.getChart()
+        while( chart.series.length > 0 ) {
+            chart.series[0].remove( false );
+        }
+        chart.redraw();
     }
      handleBroker(){
         var client = mqtt.connect('mqtt://10.0.1.95:1884')
         var that = this;
         client.on('connect', function () {
+            // On connection subscribe to the topic
             client.subscribe('temperatur', function (err,value) {
             if (!err) {
             }
@@ -147,9 +141,9 @@ class Live extends Component {
           var value = parseFloat(message.toString());
           let chart = that.refs.chart.getChart()
           chart.series[0].addPoint(({y: value}))
-
+          
         client.end()
-      })   
+      })  
     }
 
     render(){
@@ -181,7 +175,7 @@ class Live extends Component {
                             statsIcon = "pe-7s-video"
                             content ={
                                 <ul>
-                                    <li> Value : {last}</li>
+                                    <li> Value : {this.state.last}</li>
                                     <li> Timestep : {time} </li>
                                     <li>Sensor ID: 5a30ea5375a96c000f012fe0 </li>
                                     <li>Information : Number</li>
@@ -198,9 +192,6 @@ class Live extends Component {
                                 content={
                                     <Grid fluid>
                                     <Row>
-                                        <Button onClick={()=>this.addValue()} className="eric_button" bsStyle="info">Add random value</Button>
-                                    </Row>
-                                    <Row>
                                         {this.state.generated ?
                                         <p>5a30ea5375a96c000f012fe0</p> : 
                                         <Button onClick={()=>this.generateId()} className="eric_button" bsStyle="success">Generate SensorID</Button>
@@ -211,6 +202,9 @@ class Live extends Component {
                                         <Button onClick={this.stopInterval.bind(this,'tc')} className="eric_button" bsStyle ="danger">Stop Listening to MQTT</Button>:
                                         <Button onClick={this.handleMQTT.bind(this,'tc')} className="eric_button" bsStyle="primary">Listen to MQTT</Button>
                                         }
+                                    </Row>
+                                    <Row>
+                                        <Button onClick={()=>this.clearGraph()} disabled={this.state.listening} className="eric_button" bsStyle="danger">Clear data</Button>
                                     </Row>
                                     </Grid>
                                 }

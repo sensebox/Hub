@@ -18,14 +18,14 @@ const dashboardRoutes = [
     name: "Story", 
     icon: "pe-7s-paint-bucket",
     component: Maps,
-    shown:true
+    shown:false
   },
   { 
     path: "/maps",
     name: "openSenseMap", 
     icon: "pe-7s-map-marker",
     component: Maps,
-    shown:true 
+    shown:false 
     },{
     path: "/go",
     name: "Go", 
