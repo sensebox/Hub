@@ -4,9 +4,7 @@ import 'assets/skins/all.css'
 import { Card } from "components/Card/Card.jsx";
 import { StatsCard } from "components/StatsCard/StatsCard.jsx";
 import 'assets/sass/custom.css'
-import {Checkbox} from 'react-icheck';
 import {Redirect} from 'react-router-dom'
-import {LineChart,Line,CartesianGrid,XAxis,YAxis,Tooltip,Legend,CartesianAxis} from 'recharts'
 import Radio from 'components/CustomRadio/CustomRadio'
 import data from 'variables/data.jsx'
 import * as senseboxdata from "variables/sensebox.json"
@@ -148,17 +146,8 @@ class TestOffline extends Component {
                     
                 </Row>
                 <Row>
-                <LineChart width={1000} height={500} data={this.state.data}>
-                      <CartesianGrid stroke="#ccc" />
-                      <YAxis yAxisId={0} />
-                      <YAxis yAxisId={1} orientation="right"/>
-                      <XAxis dataKey="Zeitpunkt"/>
-                      <Line yAxisId={0} type="monotone" dataKey={this.state.selected[0]} stroke="#8884d8"/>
-                      <Line yAxisId={1} type="monotone" dataKey={this.state.selected[1]} stroke="#4EAF47"/>
-                      <Tooltip/>
-                      <Legend/>
-                    </LineChart>
-                    </Row>
+
+                </Row>
             </Grid>
         )
     }else{

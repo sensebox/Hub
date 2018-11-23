@@ -5,7 +5,6 @@ import { Card } from "components/Card/Card.jsx";
 import { StatsCard } from "components/StatsCard/StatsCard.jsx";
 import 'assets/sass/custom.css'
 import {Redirect} from 'react-router-dom'
-import {LineChart,Line,CartesianGrid,XAxis,YAxis,Tooltip,Legend,CartesianAxis} from 'recharts'
 import Radio from 'components/CustomRadio/CustomRadio'
 
 
@@ -58,6 +57,7 @@ class Dashboard extends Component {
     data[0].data.map((measurement)=>{
         let label = moment(measurement.createdAt).format("DD.MM.YYYY HH:mm")   ;
         arr.push({Zeitpunkt:label})
+        
                })
     // Pushing all values into one array
     // arr[0]data["Temperatur"]=22.88
@@ -119,16 +119,7 @@ handleRadio2(e){
                 category={this.state.range}
                 stats="Updated 1 minute ago"
                 content={
-                    <LineChart width={1500} height={500} data={this.state.graph_data}>
-                      <CartesianGrid stroke="#ccc" />
-                      <YAxis yAxisId={0} />
-                      <YAxis yAxisId={1} orientation="right"/>
-                      <XAxis dataKey="Zeitpunkt"/>
-                      <Line yAxisId={0} type="monotone" dot={{ fill:'#8884d8', stroke: '#8884d8', strokeWidth: 1 }} dataKey={this.state.selectedSensors[0]} stroke="#8884d8"/>
-                      <Line yAxisId={1} type="monotone" dot={{fill:'#4EAF47' , stroke: '#4EAF47', strokeWidth: 1 }} dataKey={this.state.selectedSensors[1]} stroke="#4EAF47"/>
-                      <Tooltip/>
-                      <Legend/>
-                    </LineChart>
+                    <div>Stats here</div> 
                 }
                 />
             </Col>

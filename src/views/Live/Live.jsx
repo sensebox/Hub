@@ -2,7 +2,6 @@ import React,{Component} from 'react'
 import Button from 'components/CustomButton/CustomButton';
 import { Grid, Row, Col } from "react-bootstrap";
 import 'assets/skins/all.css'
-import {LineChart,Line,CartesianGrid,XAxis,YAxis,Tooltip,Legend,CartesianAxis} from 'recharts'
 import { Card } from "components/Card/Card.jsx";
 import NotificationSystem from 'react-notification-system';
 import {style} from "variables/Variables.jsx";
