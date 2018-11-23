@@ -15,26 +15,18 @@ var config = {
     xAxis: {
       categories: []
     },
-    series: [{
-      data: []
-    }],
+    series: [],
     title:{
         text:"Live Messwerte"
     }
   };
-var last = 0 
 var time = 0 
+var lastTopic = "";
 /*
     The live page should show live measurements by a sensor
     the visualization will be refreshed everytime a new measurement comes in 
     for the data requests the mqtt-protocoll should be used 
 
-
-    TODO:
-        => Do research on mqtt 
-        => set up an mqtt server on raspbian 
-        => 'subscrice' to the mqtt server and listen for changes 
-        => dissplay these changes in a graph 
 
 */
 
@@ -48,8 +40,9 @@ class Live extends Component {
             lastMeasurement:null,
             timestep:0,
             ip:"10.0.1.2",
-            topic:"temperatur",
-            username:""
+            topics:[],
+            username:"",
+            topic:""
 
         }
         this.handleMQTT = this.handleMQTT.bind(this);
@@ -86,6 +79,13 @@ class Live extends Component {
             position: position,
             autoDismiss: 5,
         });
+        var inputArr = this.state.topics
+        for(var i=0;i<inputArr.length;i++){
+            config.series.push({
+                id:inputArr[i],
+                data:[]
+            })
+        }
         this.setState({listening:true})
         this.interval = setInterval(() => this.handleBroker(), 1000);
 
@@ -114,20 +114,35 @@ class Live extends Component {
         chart.redraw();
     }
      handleBroker(){
+
+        // prepare config variable for topic(s)
+      
         var client = mqtt.connect('mqtt://'+this.state.ip + ':1884')
         var that = this;
         client.on('connect', function () {
             // On connection subscribe to the topic
-            client.subscribe(that.state.topic, function (err,value) {
+            client.subscribe(that.state.topics, function (err,value) {
             if (!err) {
             }
             })
         })
       
       client.on('message', function (topic, message) {
-          var value = parseFloat(message.toString());
-          let chart = that.refs.chart.getChart()
-          chart.series[0].addPoint(({y: value}))
+          console.log(topic+" "+message.toString())
+            var value = parseFloat(message.toString());
+            let chart = that.refs.chart.getChart()            
+            switch(topic){
+                case chart.series[0].userOptions.id:
+                    chart.series[0].addPoint(({y: value}))
+                break;
+                case chart.series[1].userOptions.id:
+                    chart.series[1].addPoint(({y: value}))
+                break;
+                default:
+                    chart.series[0].addPoint(({y: value}))
+
+            }
+            lastTopic = topic
           
         client.end()
       })  
@@ -136,7 +151,8 @@ class Live extends Component {
         this.setState({ ip: e.target.value })
     }
     handleTopicInput(e){
-        this.setState({ topic: e.target.value })
+        var input = e.target.value
+        this.setState({ topics: input.split(','),topic:input })
     }
     handleUsernameInput(e){
         this.setState({ username: e.target.value })
@@ -171,8 +187,8 @@ class Live extends Component {
                             statsIcon = "pe-7s-video"
                             content ={
                                 <ul>
-                                    <li> Value : {this.state.last}</li>
-                                    <li> Timestep : {time} </li>
+                                    <li>Value : {this.state.last}</li>
+                                    <li>Timestep : {time} </li>
                                     <li>Sensor ID: 5a30ea5375a96c000f012fe0 </li>
                                     <li>Information : Number</li>
                                 </ul>
