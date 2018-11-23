@@ -16,12 +16,12 @@ var config = {
       categories: []
     },
     series: [],
+    yAxis:[],
     title:{
         text:"Live Messwerte"
     }
   };
 var time = 0 
-var lastTopic = "";
 /*
     The live page should show live measurements by a sensor
     the visualization will be refreshed everytime a new measurement comes in 
@@ -67,6 +67,7 @@ class Live extends Component {
 
 
     handleMQTT(position){
+        // give notification
         var level = 'info'; // 'success', 'warning', 'error' or 'info'
         this.state._notificationSystem.addNotification({
             title: (<span data-notify="icon" className="pe-7s-video"></span>),
@@ -79,11 +80,25 @@ class Live extends Component {
             position: position,
             autoDismiss: 5,
         });
+        // prepare config variable for topic(s)
         var inputArr = this.state.topics
         for(var i=0;i<inputArr.length;i++){
+            var opposite
+            if(i===0) 
+                opposite=true 
+            else 
+                opposite=false
             config.series.push({
                 id:inputArr[i],
-                data:[]
+                name:inputArr[i],
+                data:[],
+                yAxis:i,
+            })
+            config.yAxis.push({
+                title:{
+                    text:inputArr[i]
+                },
+                opposite:opposite
             })
         }
         this.setState({listening:true})
@@ -108,15 +123,17 @@ class Live extends Component {
     }
     clearGraph(){
         let chart = this.refs.chart.getChart()
-        while( chart.series.length > 0 ) {
+        while( chart.series.length > 0) {
             chart.series[0].remove( false );
+            chart.userOptions.series.shift();
         }
+        while ( chart.yAxis.length > 0){
+            chart.yAxis[0].remove( false )
+        }
+        console.log(chart)
         chart.redraw();
     }
-     handleBroker(){
-
-        // prepare config variable for topic(s)
-      
+     handleBroker(){      
         var client = mqtt.connect('mqtt://'+this.state.ip + ':1884')
         var that = this;
         client.on('connect', function () {
@@ -128,7 +145,6 @@ class Live extends Component {
         })
       
       client.on('message', function (topic, message) {
-          console.log(topic+" "+message.toString())
             var value = parseFloat(message.toString());
             let chart = that.refs.chart.getChart()            
             switch(topic){
@@ -141,9 +157,7 @@ class Live extends Component {
                 default:
                     chart.series[0].addPoint(({y: value}))
 
-            }
-            lastTopic = topic
-          
+            }          
         client.end()
       })  
     }
