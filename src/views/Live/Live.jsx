@@ -12,8 +12,11 @@ import ReactHighcharts from 'react-highcharts'
 
 var mqtt = require('mqtt')
 var config = {
+    chart: {
+        defaultSeriesType: 'spline'
+    },
     xAxis: {
-      categories: []
+        tickPixelInterval: 150,
     },
     series: [],
     yAxis:[],
@@ -22,6 +25,7 @@ var config = {
     }
   };
 var time = 0 
+var client;
 /*
     The live page should show live measurements by a sensor
     the visualization will be refreshed everytime a new measurement comes in 
@@ -93,6 +97,7 @@ class Live extends Component {
                 name:inputArr[i],
                 data:[],
                 yAxis:i,
+                marker:{enabled:false}
             })
             config.yAxis.push({
                 title:{
@@ -102,7 +107,7 @@ class Live extends Component {
             })
         }
         this.setState({listening:true})
-        this.interval = setInterval(() => this.handleBroker(), 1000);
+        this.handleBroker();
 
     }
     stopInterval(position){
@@ -119,7 +124,7 @@ class Live extends Component {
             autoDismiss: 5,
         });
         this.setState({listening:false})
-        clearInterval(this.interval)
+        client.end()
     }
     clearGraph(){
         let chart = this.refs.chart.getChart()
@@ -130,11 +135,10 @@ class Live extends Component {
         while ( chart.yAxis.length > 0){
             chart.yAxis[0].remove( false )
         }
-        console.log(chart)
         chart.redraw();
     }
      handleBroker(){      
-        var client = mqtt.connect('mqtt://'+this.state.ip + ':1884')
+        client = mqtt.connect('mqtt://'+this.state.ip + ':1884')
         var that = this;
         client.on('connect', function () {
             // On connection subscribe to the topic
@@ -146,19 +150,18 @@ class Live extends Component {
       
       client.on('message', function (topic, message) {
             var value = parseFloat(message.toString());
-            let chart = that.refs.chart.getChart()            
+            let chart = that.refs.chart.getChart()        
             switch(topic){
                 case chart.series[0].userOptions.id:
-                    chart.series[0].addPoint(({y: value}))
+                    chart.series[0].addPoint(value ,true,false)
                 break;
                 case chart.series[1].userOptions.id:
-                    chart.series[1].addPoint(({y: value}))
+                    chart.series[1].addPoint(value ,true,false)
                 break;
                 default:
-                    chart.series[0].addPoint(({y: value}))
+                    chart.series[0].addPoint(value ,true,false)
 
             }          
-        client.end()
       })  
     }
     handleIPInput(e){
