@@ -14,7 +14,7 @@
  2. Install Dependencies
  `cd Hub/ && npm install`
  3. Run the app locally in development mode 
- `npm run`
+ `npm start`
 
  The `src`-folder contains all files for further development.
 `views` contains the components that will get rendered. 
