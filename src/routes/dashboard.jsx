@@ -38,7 +38,7 @@ const dashboardRoutes = [
     name: "Test",
     icon: "pe-7s-graph",
     component: Test,
-    shown:false
+    shown:true
   }, 
   {
     path: "/testfloffline",

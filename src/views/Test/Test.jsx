@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Grid, Row, Col } from "react-bootstrap";
+import { Grid, Row, Col, Button } from "react-bootstrap";
 import 'assets/skins/all.css'
 import { Card } from "components/Card/Card.jsx";
 import { StatsCard } from "components/StatsCard/StatsCard.jsx";
@@ -7,13 +7,24 @@ import 'assets/sass/custom.css'
 import {Redirect} from 'react-router-dom'
 import Radio from 'components/CustomRadio/CustomRadio'
 import {data} from 'variables/data.jsx'
-var moment = require('moment')
+import ReactHighcharts from 'react-highcharts'
 
+var moment = require('moment')
+var config = {
+    chart: {
+        defaultSeriesType: 'spline'
+    },
+    series: [],
+    yAxis:[],
+    title:{
+        text:"Messwerte senseBox"
+    }
+  };
 class Test extends Component {
     constructor(props){
         super()
         this.state={
-            input:'5a30ea5375a96c000f012fe0',
+            input:'5bb610bf043f3f001b6a4c53',
             data:[],
             loading:true,
             selected:["Temperatur","Luftdruck"]
@@ -21,16 +32,16 @@ class Test extends Component {
         this.handleValues=this.handleValues.bind(this)
         this.handleRadio = this.handleRadio.bind(this)
         this.handleRadio2 = this.handleRadio2.bind(this)
-
+        this.addSeries = this.addSeries.bind(this)
+        this.cutArray = this.cutArray.bind(this)
     }
     componentDidMount(){
-       //  this.handleSubmit()
-       console.log(data);
+        this.handleSubmit()
        
     }
 
     handleSubmit(){       
-        let url = 'https://api.opensensemap.org/boxes/5a30ea5375a96c000f012fe0'
+        let url = 'https://api.opensensemap.org/boxes/5bb610bf043f3f001b6a4c53'
         fetch(url)      // Fetching Data about the senseBox
         .catch((error)=>{
             console.warn(error)
@@ -50,7 +61,7 @@ class Test extends Component {
     }
 
     handleStats(sensorid,title){
-        let url = 'https://api.opensensemap.org/boxes/5a30ea5375a96c000f012fe0/data/'+sensorid;
+        let url = 'https://api.opensensemap.org/boxes/5bb610bf043f3f001b6a4c53/data/'+sensorid;
         fetch(url)
         .catch((error)=>{
             console.warn(error)
@@ -93,6 +104,54 @@ class Test extends Component {
         
         console.log(arr)
     }
+
+    /*
+        data : [{typ:'Luft',data:[2,3,4,53,235]},{...}]
+        access with data[i].data
+    */
+    addSeries(){
+        // init Variables 
+        let chart = this.refs.chart.getChart()
+        const data = this.state.data;
+        var arr = [];
+        var dateArray = []
+        for(var i = 0 ;i<data.length;i++){
+            var newArr = {typ:data[i].typ,data:[]}
+            for(var u = 0;u<data[i].data.length;u++){
+                newArr.data.push(parseFloat(data[i].data[u].value))
+            }
+            arr.push(newArr)
+        }
+        // Create xAxis with moment
+        data[0].data.map((measurement)=>{
+            dateArray.push(moment(measurement.createdAt).format("DD.MM.YYYY HH:mm"))
+        })
+        arr.push(dateArray)
+        // Add xAxis
+        chart.xAxis[0].update({categories:arr[arr.length-1]},true)
+        // Loop first 2 entries and display in graph 
+        for(var i=0;i<2;i++){
+            var opposite = false;
+            if(i%2 == 0 ) opposite = true
+            chart.addAxis({
+                id:data[i].typ,
+                title:{
+                    text:data[i].typ
+                },
+                opposite:opposite
+            })
+            chart.addSeries({
+                name:data[i].typ,
+                type:"spline",
+                data:arr[i].data,
+                yAxis:data[i].typ
+            })
+        }
+
+        // List all phenomena and make it able to select them to add to the graph 
+        // Make it possible to remove certain phenomena
+        console.log(chart.getSelectedSeries())
+    }
     handleRadio(e){
         const id = e.target.id
         const selected = this.state.selected
@@ -111,48 +170,42 @@ class Test extends Component {
         if(!this.state.loading){      
             console.log(this.state.sensors)      
         return(
-            <Grid>
+            <Grid fluid>
                 <Row>
-                    <button onClick={()=>this.handleValues()}>Des</button>
-                    <Col lg={3} md={6}>
-                    <ul>
-                        {this.state.sensors.map((sensor)=>{
-                            return(
-                        <li key={sensor._id}>
-                        <Radio
-                                label={sensor.title}
-                                key={sensor._id}
-                                name="sensoren"
-                                onChange={this.handleRadio}
-                                number={sensor.title}
-                                
-                                />
-                      </li>
-                        )})}
-                    </ul>
-                    </Col>
-                    <Col lg={3} md={6}>
-                    <ul>
-                        {this.state.sensors.map((sensor)=>{
-                            return(
-                        <li key={sensor._id}>
-                        <Radio
-                                label={sensor.title}
-                                key={sensor._id}
-                                name="sensoren"
-                                onChange={this.handleRadio2}
-                                number={sensor.title}
-                                
-                                />
-                      </li>
-                        )})}
-                    </ul>
-                    </Col>
-                    
+                <Col md={10}>
+                    <Card 
+                        title="Des"
+                        category="Live Measurement"
+                        stats="Listening for new data"
+                        statsIcon="pe-7s-video"
+                        content={
+                            <ReactHighcharts  config={config} height={600}  ref="chart"></ReactHighcharts>
+                        }
+                        />
+                </Col> 
+                <Row>
+                <Col md={2}>
+                        <Card 
+                            title="Sensor to choose"
+                            category="All Phenomena from your Box"
+                            content=
+                            {<ul>{this.state.sensors.map((sensor)=>{
+                            return <li>{sensor.title}</li>
+                        })}</ul> }/>
+                </Col>
+                <Col md={2}>
+                        <Card 
+                            title="Sensor to choose"
+                            category="All Phenomena from your Box"
+                            content=
+                            {<div>
+                                <Button bsStyle='success' onClick={()=>this.addSeries()}>Load data to Graph</Button>
+                            </div>
+                            }/>
+                </Col>
                 </Row>
-                <Row>
- 
-                    </Row>
+                </Row>
+                
             </Grid>
         )
     }else{
