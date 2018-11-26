@@ -79,6 +79,7 @@ class Dashboard extends Component {
     
     chart.xAxis[0].remove()
     chart.addAxis({
+        tickInterval:280,
         categories:arr[arr.length-1]
     },true)
     // Loop first 2 entries and display in graph 
@@ -109,7 +110,7 @@ class Dashboard extends Component {
   }
 
 
-  handleRadio(e){        
+  handleRadio(e){   
     let chart = this.myRef.current.chart
     const phenomenon =e.target.dataset.title
     var newPheno = this.state.data_new.filter((sensor)=>{
