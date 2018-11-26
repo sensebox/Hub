@@ -11,7 +11,7 @@ import HighchartsReact from 'highcharts-react-official'
 
 const options = {
   title: {
-    text: 'senseBox measurements'
+    text: ''
   }
 }
 
@@ -67,6 +67,9 @@ class Dashboard extends Component {
         }
         arr.push(newArr)
     }
+    chart.setTitle({
+      text:this.state.senseBox.name
+    })
     // Create xAxis with moment
     data[0].data.map((measurement)=>{
         dateArray.push(moment(measurement.createdAt).format("DD.MM.YYYY HH:mm"))
