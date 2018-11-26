@@ -7,31 +7,31 @@ import 'assets/sass/custom.css'
 import {Redirect} from 'react-router-dom'
 import Radio from 'components/CustomRadio/CustomRadio'
 import {data} from 'variables/data.jsx'
-import ReactHighcharts from 'react-highcharts'
+import {Collapse} from 'react-collapse'
+import { render } from 'react-dom'
+import Highcharts from 'highcharts'
+import HighchartsReact from 'highcharts-react-official'
+
 
 var moment = require('moment')
-var config = {
-    chart: {
-        defaultSeriesType: 'spline'
-    },
-    series: [],
-    yAxis:[],
-    title:{
-        text:"Messwerte senseBox"
+const options = {
+    title: {
+      text: 'senseBox measurements'
     }
-  };
+  }
 class Test extends Component {
     constructor(props){
-        super()
+        super(props)
+        this.myRef = React.createRef();
         this.state={
             input:'5bb610bf043f3f001b6a4c53',
             data:[],
             loading:true,
-            selected:["Temperatur","Luftdruck"]
+            selected:["Temperatur","Luftdruck"],
+            toggle:false
         }
         this.handleValues=this.handleValues.bind(this)
         this.handleRadio = this.handleRadio.bind(this)
-        this.handleRadio2 = this.handleRadio2.bind(this)
         this.addSeries = this.addSeries.bind(this)
         this.cutArray = this.cutArray.bind(this)
     }
@@ -42,7 +42,7 @@ class Test extends Component {
 
     handleSubmit(){       
         let url = 'https://api.opensensemap.org/boxes/5bb610bf043f3f001b6a4c53'
-        fetch(url)      // Fetching Data about the senseBox
+        fetch(url)      // Fetching Datsa about the senseBox
         .catch((error)=>{
             console.warn(error)
             return null
@@ -105,19 +105,16 @@ class Test extends Component {
         console.log(arr)
     }
 
-    /*
-        data : [{typ:'Luft',data:[2,3,4,53,235]},{...}]
-        access with data[i].data
-    */
+
     addSeries(){
         // init Variables 
-        let chart = this.refs.chart.getChart()
+        let chart = this.myRef.current.chart
         const data = this.state.data;
         var arr = [];
         var dateArray = []
         for(var i = 0 ;i<data.length;i++){
             var newArr = {typ:data[i].typ,data:[]}
-            for(var u = 0;u<data[i].data.length;u++){
+            for(var u = data[i].data.length-1;u>=0;u--){
                 newArr.data.push(parseFloat(data[i].data[u].value))
             }
             arr.push(newArr)
@@ -126,15 +123,19 @@ class Test extends Component {
         data[0].data.map((measurement)=>{
             dateArray.push(moment(measurement.createdAt).format("DD.MM.YYYY HH:mm"))
         })
-        arr.push(dateArray)
+        arr.push(dateArray.reverse())
         // Add xAxis
-        chart.xAxis[0].update({categories:arr[arr.length-1]},true)
+        
+        chart.xAxis[0].remove()
+        chart.addAxis({
+            categories:arr[arr.length-1]
+        },true)
         // Loop first 2 entries and display in graph 
         for(var i=0;i<2;i++){
             var opposite = false;
-            if(i%2 == 0 ) opposite = true
+            if(i == 1 ) opposite = true
             chart.addAxis({
-                id:data[i].typ,
+                id:data[i].typ+"axis",
                 title:{
                     text:data[i].typ
                 },
@@ -144,31 +145,57 @@ class Test extends Component {
                 name:data[i].typ,
                 type:"spline",
                 data:arr[i].data,
-                yAxis:data[i].typ
+                yAxis:data[i].typ+"axis"
             })
         }
-
-        // List all phenomena and make it able to select them to add to the graph 
-        // Make it possible to remove certain phenomena
-        console.log(chart.getSelectedSeries())
+        this.setState({
+            data_new:arr,
+            selected:[data[0].typ,data[1].typ]
+        })
+        chart.axes[1].remove()
+        
     }
     handleRadio(e){
-        const id = e.target.id
-        const selected = this.state.selected
+        let chart = this.myRef.current.chart
+        const phenomenon =e.target.dataset.title
+        var newPheno = this.state.data_new.filter((sensor)=>{
+            return(sensor.typ === phenomenon)
+        })
+
+        // Remove previous ( first ) series 
+        var toremoveaxis = chart.yAxis.filter((axis)=>{
+            return(axis.axisTitle.textStr === this.state.selected[1])
+        })
+        chart.series[0].remove(false)
+        chart.get(this.state.selected[0]+"axis").remove()
+        var newSeries = {
+            name:newPheno[0].typ,
+            type:'spline',
+            data:newPheno[0].data,
+            yAxis: newPheno[0].typ+"axis"
+        }
+        var newAxis = {
+            id:newPheno[0].typ+"axis",
+            title:{
+                text:newPheno[0].typ
+            },
+            opposite:this.state.toggle
+        }
+
+        // Add Series and new axis
+         chart.addAxis(newAxis)
+         chart.addSeries(newSeries)
+
+        var selected = this.state.selected
+        var newSelected = [selected[1],phenomenon]
         this.setState({
-            selected:[id,selected[1]]
+            selected:newSelected,
+            toggle:!this.state.toggle,
         })
     }
-    handleRadio2(e){
-        const id = e.target.id
-        const selected = this.state.selected
-        this.setState({
-            selected:[selected[0],id]
-        })
-    }
+    
     render(){
         if(!this.state.loading){      
-            console.log(this.state.sensors)      
         return(
             <Grid fluid>
                 <Row>
@@ -179,8 +206,11 @@ class Test extends Component {
                         stats="Listening for new data"
                         statsIcon="pe-7s-video"
                         content={
-                            <ReactHighcharts  config={config} height={600}  ref="chart"></ReactHighcharts>
-                        }
+                            <HighchartsReact
+                            highcharts={Highcharts}
+                            options={options}
+                            ref={this.myRef}
+                          />                        }
                         />
                 </Col> 
                 <Row>
@@ -188,10 +218,26 @@ class Test extends Component {
                         <Card 
                             title="Sensor to choose"
                             category="All Phenomena from your Box"
-                            content=
-                            {<ul>{this.state.sensors.map((sensor)=>{
-                            return <li>{sensor.title}</li>
-                        })}</ul> }/>
+                            content={
+                            <Collapse isOpened={true}>
+                                <ul>
+                                {
+                                    this.state.sensors.map((sensor)=>{
+                                    return (
+                                    <li key={sensor._id}>
+                                        <Radio
+                                            number={sensor._id}
+                                            name="radio"
+                                            onChange={this.handleRadio}
+                                            label={sensor.title}
+                                            data-title = {sensor.title}
+
+                                        />
+                                    </li>)
+                            })
+                            }
+                            </ul> 
+                        </Collapse>}/>
                 </Col>
                 <Col md={2}>
                         <Card 
