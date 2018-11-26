@@ -29,7 +29,8 @@ class Dashboard extends Component {
       senseBox:props.location.query.content,
       json : props.location.query.comments,
       hasError:false,
-      selectedSensors:[]
+      selectedSensors:[],
+      toggle:true
     }
     this.handleRadio = this.handleRadio.bind(this);
     this.addSeries = this.addSeries.bind(this);
@@ -97,7 +98,8 @@ class Dashboard extends Component {
     }
     this.setState({
         data_new:arr,
-        selected:[data[0].typ,data[1].typ]
+        selected:[data[0].typ,data[1].typ],
+        range:"Von "+dateArray[0]+" bis "+dateArray[dateArray.length-1]
     })
     chart.axes[1].remove()
     
@@ -167,7 +169,7 @@ class Dashboard extends Component {
             <Card
                 statsIcon="fa fa-history"
                 id="chartHours"
-                title={this.state.selectedSensors[0] +"/" + this.state.selectedSensors[1]}
+                title={this.state.selected[0] +"/" + this.state.selected[1]}
                 category={this.state.range}
                 stats="Updated 1 minute ago"
                 content={
