@@ -32,8 +32,6 @@ class Dashboard extends Component {
       selectedSensors:[]
     }
     this.handleRadio = this.handleRadio.bind(this);
-    this.handleRadio2 = this.handleRadio2.bind(this);
-    this.handleValues = this.handleValues.bind(this)
     this.addSeries = this.addSeries.bind(this);
   }
   componentDidMount(){
@@ -54,6 +52,7 @@ class Dashboard extends Component {
   componentDidCatch(error, info){
     this.setState({ has_error: true });
   }
+
   addSeries(){
     // init Variables 
     let chart = this.myRef.current.chart
@@ -102,81 +101,47 @@ class Dashboard extends Component {
     })
     chart.axes[1].remove()
     
-}
-  handleValues(){
-    // Calling variables to use in the algorithm
-    var data = this.state.json;
-    console.log(data)
-    var arr = [];
-    // Creating labels for the sets 
-    // important: all arrays must be same size or are not allowed to be bigger than the first array => TODO 
-    data[0].data.map((measurement)=>{
-        let label = moment(measurement.createdAt).format("DD.MM.YYYY HH:mm")   ;
-        arr.push({Zeitpunkt:label})
-        
-               })
-    // Pushing all values into one array
-    // arr[0]data["Temperatur"]=22.88
-    for(var i = 0;i<data.length;i++){
-        for(var u = 0;u<data[i].data.length;u++){
-            arr[u][data[i].typ]=parseFloat(data[i].data[u].value);
-        }
+  }
+
+
+  handleRadio(e){        
+    let chart = this.myRef.current.chart
+    const phenomenon =e.target.dataset.title
+    var newPheno = this.state.data_new.filter((sensor)=>{
+        return(sensor.typ === phenomenon)
+    })
+
+    // Remove previous ( first ) series 
+    var toremoveaxis = chart.yAxis.filter((axis)=>{
+        return(axis.axisTitle.textStr === this.state.selected[1])
+    })
+    chart.series[0].remove(false)
+    chart.get(this.state.selected[0]+"axis").remove()
+    var newSeries = {
+        name:newPheno[0].typ,
+        type:'spline',
+        data:newPheno[0].data,
+        yAxis: newPheno[0].typ+"axis"
     }
-    arr = arr.reverse()
-    // Set state to the new calculated array 
+    var newAxis = {
+        id:newPheno[0].typ+"axis",
+        title:{
+            text:newPheno[0].typ
+        },
+        opposite:this.state.toggle
+    }
+
+    // Add Series and new axis
+    chart.addAxis(newAxis)
+    chart.addSeries(newSeries)
+
+    var selected = this.state.selected
+    var newSelected = [selected[1],phenomenon]
     this.setState({
-        graph_data:this.cutArray(5,arr),
-        range:"Von " + arr[0].Zeitpunkt +" bis " + arr[arr.length-1].Zeitpunkt
-
+        selected:newSelected,
+        toggle:!this.state.toggle,
     })
-  }
-
-  // handlers for the 2 radio button groups
-  handleRadio2(e){
-    const id = e.target.dataset.title
-    const selected = this.state.selectedSensors
-    this.setState({
-        selectedSensors:[id,selected[1]]
-    })
-  }
-handleRadio(e){        
-  let chart = this.myRef.current.chart
-  const phenomenon =e.target.dataset.title
-  var newPheno = this.state.data_new.filter((sensor)=>{
-      return(sensor.typ === phenomenon)
-  })
-
-  // Remove previous ( first ) series 
-  var toremoveaxis = chart.yAxis.filter((axis)=>{
-      return(axis.axisTitle.textStr === this.state.selected[1])
-  })
-  chart.series[0].remove(false)
-  chart.get(this.state.selected[0]+"axis").remove()
-  var newSeries = {
-      name:newPheno[0].typ,
-      type:'spline',
-      data:newPheno[0].data,
-      yAxis: newPheno[0].typ+"axis"
-  }
-  var newAxis = {
-      id:newPheno[0].typ+"axis",
-      title:{
-          text:newPheno[0].typ
-      },
-      opposite:this.state.toggle
-  }
-
-  // Add Series and new axis
-   chart.addAxis(newAxis)
-   chart.addSeries(newSeries)
-
-  var selected = this.state.selected
-  var newSelected = [selected[1],phenomenon]
-  this.setState({
-      selected:newSelected,
-      toggle:!this.state.toggle,
-  })
-  }
+    }
 
   render() {
     if(this.state.hasError){
