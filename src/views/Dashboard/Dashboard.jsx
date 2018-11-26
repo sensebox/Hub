@@ -6,17 +6,24 @@ import { StatsCard } from "components/StatsCard/StatsCard.jsx";
 import 'assets/sass/custom.css'
 import {Redirect} from 'react-router-dom'
 import Radio from 'components/CustomRadio/CustomRadio'
+import Highcharts from 'highcharts'
+import HighchartsReact from 'highcharts-react-official'
 
-
+const options = {
+  title: {
+    text: 'senseBox measurements'
+  }
+}
 
 
 var moment = require('moment')
 class Dashboard extends Component {
   constructor(props){
-    super()   
+    super(props)
+    this.myRef = React.createRef();   
     this.state={
       data:[], // Array that contains the data that is visualized in the graph 
-      selected:"Select Sensor",
+      selected:["Temperatur","Luftdruck"],
       checkboxChecked:false,
       graph_data:[],
       senseBox:props.location.query.content,
@@ -25,11 +32,10 @@ class Dashboard extends Component {
       selectedSensors:[]
     }
     this.handleRadio = this.handleRadio.bind(this);
-    this.handleRadio2 = this.handleRadio2.bind(this);
-    this.handleValues = this.handleValues.bind(this)
+    this.addSeries = this.addSeries.bind(this);
   }
   componentDidMount(){
-    this.handleValues();
+    this.addSeries();
   }
   componentDidUpdate(){
 
@@ -47,49 +53,95 @@ class Dashboard extends Component {
     this.setState({ has_error: true });
   }
 
-  handleValues(){
-    // Calling variables to use in the algorithm
-    var data = this.state.json;
-    console.log(data)
+  addSeries(){
+    // init Variables 
+    let chart = this.myRef.current.chart
+    const data = this.state.json;
     var arr = [];
-    // Creating labels for the sets 
-    // important: all arrays must be same size or are not allowed to be bigger than the first array => TODO 
-    data[0].data.map((measurement)=>{
-        let label = moment(measurement.createdAt).format("DD.MM.YYYY HH:mm")   ;
-        arr.push({Zeitpunkt:label})
-        
-               })
-    // Pushing all values into one array
-    // arr[0]data["Temperatur"]=22.88
-    for(var i = 0;i<data.length;i++){
-        for(var u = 0;u<data[i].data.length;u++){
-            arr[u][data[i].typ]=parseFloat(data[i].data[u].value);
+    var dateArray = []
+    for(var i = 0 ;i<data.length;i++){
+        var newArr = {typ:data[i].typ,data:[]}
+        for(var u = data[i].data.length-1;u>=0;u--){
+            newArr.data.push(parseFloat(data[i].data[u].value))
         }
+        arr.push(newArr)
     }
-    arr = arr.reverse()
-    // Set state to the new calculated array 
-    this.setState({
-        graph_data:this.cutArray(5,arr),
-        range:"Von " + arr[0].Zeitpunkt +" bis " + arr[arr.length-1].Zeitpunkt
-
+    // Create xAxis with moment
+    data[0].data.map((measurement)=>{
+        dateArray.push(moment(measurement.createdAt).format("DD.MM.YYYY HH:mm"))
     })
+    arr.push(dateArray.reverse())
+    // Add xAxis
+    
+    chart.xAxis[0].remove()
+    chart.addAxis({
+        categories:arr[arr.length-1]
+    },true)
+    // Loop first 2 entries and display in graph 
+    for(var i=0;i<2;i++){
+        var opposite = false;
+        if(i == 1 ) opposite = true
+        chart.addAxis({
+            id:data[i].typ+"axis",
+            title:{
+                text:data[i].typ
+            },
+            opposite:opposite
+        })
+        chart.addSeries({
+            name:data[i].typ,
+            type:"spline",
+            data:arr[i].data,
+            yAxis:data[i].typ+"axis"
+        })
+    }
+    this.setState({
+        data_new:arr,
+        selected:[data[0].typ,data[1].typ]
+    })
+    chart.axes[1].remove()
+    
   }
 
-  // handlers for the 2 radio button groups
-  handleRadio(e){
-    const id = e.target.dataset.title
-    const selected = this.state.selectedSensors
-    this.setState({
-        selectedSensors:[id,selected[1]]
+
+  handleRadio(e){        
+    let chart = this.myRef.current.chart
+    const phenomenon =e.target.dataset.title
+    var newPheno = this.state.data_new.filter((sensor)=>{
+        return(sensor.typ === phenomenon)
     })
-  }
-handleRadio2(e){        
-    const id = e.target.dataset.title
-    const selected = this.state.selectedSensors
-    this.setState({
-        selectedSensors:[selected[0],id]
+
+    // Remove previous ( first ) series 
+    var toremoveaxis = chart.yAxis.filter((axis)=>{
+        return(axis.axisTitle.textStr === this.state.selected[1])
     })
-  }
+    chart.series[0].remove(false)
+    chart.get(this.state.selected[0]+"axis").remove()
+    var newSeries = {
+        name:newPheno[0].typ,
+        type:'spline',
+        data:newPheno[0].data,
+        yAxis: newPheno[0].typ+"axis"
+    }
+    var newAxis = {
+        id:newPheno[0].typ+"axis",
+        title:{
+            text:newPheno[0].typ
+        },
+        opposite:this.state.toggle
+    }
+
+    // Add Series and new axis
+    chart.addAxis(newAxis)
+    chart.addSeries(newSeries)
+
+    var selected = this.state.selected
+    var newSelected = [selected[1],phenomenon]
+    this.setState({
+        selected:newSelected,
+        toggle:!this.state.toggle,
+    })
+    }
 
   render() {
     if(this.state.hasError){
@@ -119,44 +171,38 @@ handleRadio2(e){
                 category={this.state.range}
                 stats="Updated 1 minute ago"
                 content={
-                    <div>Stats here</div> 
+                  <HighchartsReact
+                  highcharts={Highcharts}
+                  options={options}
+                  ref={this.myRef}
+                /> 
                 }
                 />
             </Col>
             <Col md={2}>
-                <ul>
-                  {this.state.senseBox.sensors.map((sensor)=>{
-                    return(
-                      <li key ={sensor._id}> 
-                          <Radio
-                        label={sensor.title}
-                        name="sensoren1"
-                        onChange={this.handleRadio}
-                        number={sensor.title}
-                        data-title = {sensor.title}
-                        />
-                      </li>
-                    )
-                  })}
-                </ul>
-                <hr></hr>
-                <ul>
-                  {this.state.senseBox.sensors.map((sensor)=>{
-                    return(
-                      <li key={sensor._id +"e"}>
-                      <Radio
-                        label={sensor.title}
-                        key={sensor._id+"e"}
-                        name="sensoren2"
-                        onChange={this.handleRadio2}
-                        number={sensor.title+"2"}
-                        data-title = {sensor.title}
-                      />
-                    </li>
-                    )
-                  })}
-                </ul>
-            </Col>
+                        <Card 
+                            title="Sensor to choose"
+                            category="All Phenomena from your Box"
+                            content={
+                                <ul>
+                                {
+                                    this.state.senseBox.sensors.map((sensor)=>{
+                                    return (
+                                    <li key={sensor._id}>
+                                        <Radio
+                                            number={sensor._id}
+                                            name="radio"
+                                            onChange={this.handleRadio}
+                                            label={sensor.title}
+                                            data-title = {sensor.title}
+
+                                        />
+                                    </li>)
+                            })
+                            }
+                            </ul> 
+                       }/>
+                </Col>
 
           </Row>
         </Grid>
