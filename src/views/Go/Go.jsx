@@ -44,9 +44,10 @@ class Go extends Component {
             />
             </Col>
             <Col md={6}> 
-            <Button bsStyle="success" onClick={this.handleSubmit}>Lade Daten</Button>
-            <Link to={`/sensebox/${ this.state.input }`}>Create Idea</Link>             
-            
+            <Link to={`/sensebox/${ this.state.input }`}>           
+
+            <Button bsStyle="success" onClick={this.handleSubmit}>Load senseBox</Button>
+            </Link>
             </Col>
 
             </Row>
