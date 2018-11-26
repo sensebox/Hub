@@ -11,7 +11,7 @@ import HighchartsReact from 'highcharts-react-official'
 
 const options = {
   title: {
-    text: 'senseBox measurements'
+    text: ''
   }
 }
 
@@ -20,26 +20,77 @@ var moment = require('moment')
 class Dashboard extends Component {
   constructor(props){
     super(props)
-    this.myRef = React.createRef();   
+    this.myRef = React.createRef();  
+    console.log(props) 
     this.state={
       data:[], // Array that contains the data that is visualized in the graph 
-      selected:["Temperatur","Luftdruck"],
+      selected:["Loading...",""],
       checkboxChecked:false,
       graph_data:[],
-      senseBox:props.location.query.content,
-      json : props.location.query.comments,
       hasError:false,
-      selectedSensors:[]
+      selectedSensors:[],
+      toggle:true,
+      loading:true,
+      loaded:true,
+      json:[]
     }
     this.handleRadio = this.handleRadio.bind(this);
     this.addSeries = this.addSeries.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleStats = this.handleStats.bind(this)
   }
   componentDidMount(){
-    this.addSeries();
+    this.handleSubmit(this.addSeries)
   }
   componentDidUpdate(){
 
   }
+
+  handleSubmit(){  
+    console.log("t")     
+    let url = 'https://api.opensensemap.org/boxes/'+this.props.match.params.id;
+    fetch(url)      // Fetching Data about the senseBox
+    .catch((error)=>{
+        console.warn(error)
+        return null
+    })
+    .then((response)=>response.json())
+    .then((json)=>this.setState({
+        senseBox:json,
+        sensors:json.sensors
+                }))
+    .then(()=>{
+      console.log(this.state)
+      this.state.sensors.map((sensor)=>{
+      
+        this.handleStats(sensor._id,sensor.title);
+    })})
+    .then(()=>{
+      this.setState(
+        {loading:false
+      })
+    })
+}
+
+handleStats(sensorid,title){
+  console.log(sensorid)
+    let url = 'https://api.opensensemap.org/boxes/'+this.props.match.params.id+'/data/'+sensorid;
+    fetch(url)
+    .catch((error)=>{
+        console.warn(error)
+        return null
+    })
+    .then((response)=>response.json())
+    .then((json)=>this.setState((prevState)=>{
+        json:prevState.json.push({typ:title,data:json})
+    },function(){
+      if(this.state.length==2)this.setState({selected:[this.state.json[0].title,this.state.json[1].title]})
+      if(this.state.json.length == this.state.sensors.length)this.addSeries()
+
+    }))
+
+}
+
   cutArray(steps,oldArr){
     var arr = [];
     for(var i=0;i<oldArr.length;i=i+steps){      
@@ -53,7 +104,8 @@ class Dashboard extends Component {
     this.setState({ has_error: true });
   }
 
-  addSeries(){
+  addSeries() {
+    console.log("des?",this.state.loading)
     // init Variables 
     let chart = this.myRef.current.chart
     const data = this.state.json;
@@ -66,15 +118,21 @@ class Dashboard extends Component {
         }
         arr.push(newArr)
     }
+    chart.setTitle({
+      text:this.state.senseBox.name
+    })
+    console.log("first for loop")
     // Create xAxis with moment
     data[0].data.map((measurement)=>{
-        dateArray.push(moment(measurement.createdAt).format("DD.MM.YYYY HH:mm"))
+      
+      dateArray.push(moment(measurement.createdAt).format("DD.MM.YYYY HH:mm"))
     })
     arr.push(dateArray.reverse())
     // Add xAxis
     
     chart.xAxis[0].remove()
     chart.addAxis({
+        tickInterval:280,
         categories:arr[arr.length-1]
     },true)
     // Loop first 2 entries and display in graph 
@@ -97,20 +155,26 @@ class Dashboard extends Component {
     }
     this.setState({
         data_new:arr,
-        selected:[data[0].typ,data[1].typ]
+        selected:[data[0].typ,data[1].typ],
+        range:"Von "+dateArray[0]+" bis "+dateArray[dateArray.length-1],
+        loaded:false
     })
+    console.log(chart)
     chart.axes[1].remove()
     
   }
 
 
-  handleRadio(e){        
+  handleRadio(e){   
     let chart = this.myRef.current.chart
     const phenomenon =e.target.dataset.title
     var newPheno = this.state.data_new.filter((sensor)=>{
         return(sensor.typ === phenomenon)
     })
-
+    var des = this.state.selected.filter((select)=>{
+      return select === phenomenon
+    })
+    if(des.length>1) return null
     // Remove previous ( first ) series 
     var toremoveaxis = chart.yAxis.filter((axis)=>{
         return(axis.axisTitle.textStr === this.state.selected[1])
@@ -147,11 +211,13 @@ class Dashboard extends Component {
     if(this.state.hasError){
       return <Redirect to="/dashboard"/>
     }
+    if(!this.state.loading){
+      console.log(this.state)
     return (
       <div className="content">
         <Grid fluid>
         <Row>
-           {this.state.senseBox.sensors.map((sensor)=>(
+           {this.state.sensors.map((sensor)=>(
             <Col key={sensor._id} lg={3} md={6}>
              <StatsCard             
               bigIcon={
@@ -167,7 +233,7 @@ class Dashboard extends Component {
             <Card
                 statsIcon="fa fa-history"
                 id="chartHours"
-                title={this.state.selectedSensors[0] +"/" + this.state.selectedSensors[1]}
+                title={this.state.selected[0] +"/" + this.state.selected[1]}
                 category={this.state.range}
                 stats="Updated 1 minute ago"
                 content={
@@ -186,7 +252,7 @@ class Dashboard extends Component {
                             content={
                                 <ul>
                                 {
-                                    this.state.senseBox.sensors.map((sensor)=>{
+                                    this.state.sensors.map((sensor)=>{
                                     return (
                                     <li key={sensor._id}>
                                         <Radio
@@ -207,7 +273,21 @@ class Dashboard extends Component {
           </Row>
         </Grid>
       </div>
-    );
+    )};// end if loading  
+    if(this.state.loading){
+        return(
+          
+            <div className="spinner center-screen">
+            <div className="des">
+            <HighchartsReact
+            highcharts={Highcharts}
+            options={options}
+            ref={this.myRef}
+          /> </div>
+          </div>
+          
+        )
+    }
   }
 }
 
