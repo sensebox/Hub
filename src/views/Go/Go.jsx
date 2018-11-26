@@ -15,46 +15,13 @@ class Go extends Component {
             loading:true,
         }
         this.handleInput = this.handleInput.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleStats = this.handleStats.bind(this);
+    
     }
     handleInput(e){
         this.setState({
             input:e.target.value
         })
         
-    }
-    handleSubmit(){       
-        let url = 'https://api.opensensemap.org/boxes/'+this.state.input;
-        fetch(url)      // Fetching Data about the senseBox
-        .catch((error)=>{
-            console.warn(error)
-            return null
-        })
-        .then((response)=>response.json())
-        .then((json)=>this.setState({
-            senseBoxData:json,
-            sensors:json.sensors
-                    }))
-        .then(()=>{
-        this.state.sensors.map((sensor)=>{
-            this.handleStats(sensor._id,sensor.title);
-        })})
-        .then(()=>this.setState({loading:false}))
-    }
-
-    handleStats(sensorid,title){
-        let url = 'https://api.opensensemap.org/boxes/'+this.state.senseBoxData.id+'/data/'+sensorid;
-        fetch(url)
-        .catch((error)=>{
-            console.warn(error)
-            return null
-        })
-        .then((response)=>response.json())
-        .then((json)=>this.setState((prevState)=>{
-            json:prevState.json.push({typ:title,data:json})
-        }))
-
     }
 
 
@@ -77,16 +44,8 @@ class Go extends Component {
             />
             </Col>
             <Col md={6}> 
-        { this.state.loading ?             
             <Button bsStyle="success" onClick={this.handleSubmit}>Lade Daten</Button>
-                :
-            <Link to={{pathname:`/senseBox`,query: {
-                title:"senseboxData",
-                content:this.state.senseBoxData,
-                comments:this.state.json
-            }}}>
-                <Button bsStyle="success">Weiter</Button>
-            </Link>}
+            <Link to={`/sensebox/${ this.state.input }`}>Create Idea</Link>             
             
             </Col>
 
