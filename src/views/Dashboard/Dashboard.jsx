@@ -49,6 +49,7 @@ class Dashboard extends Component {
   handleSubmit(){  
     console.log("t")     
     let url = 'https://api.opensensemap.org/boxes/'+this.props.match.params.id;
+    console.log(url)
     fetch(url)      // Fetching Data about the senseBox
     .catch((error)=>{
         console.warn(error)
@@ -60,9 +61,7 @@ class Dashboard extends Component {
         sensors:json.sensors
                 }))
     .then(()=>{
-      console.log(this.state)
       this.state.sensors.map((sensor)=>{
-      
         this.handleStats(sensor._id,sensor.title);
     })})
     .then(()=>{
@@ -121,7 +120,6 @@ handleStats(sensorid,title){
     chart.setTitle({
       text:this.state.senseBox.name
     })
-    console.log("first for loop")
     // Create xAxis with moment
     data[0].data.map((measurement)=>{
       
@@ -159,7 +157,6 @@ handleStats(sensorid,title){
         range:"Von "+dateArray[0]+" bis "+dateArray[dateArray.length-1],
         loaded:false
     })
-    console.log(chart)
     chart.axes[1].remove()
     
   }
@@ -171,10 +168,7 @@ handleStats(sensorid,title){
     var newPheno = this.state.data_new.filter((sensor)=>{
         return(sensor.typ === phenomenon)
     })
-    var des = this.state.selected.filter((select)=>{
-      return select === phenomenon
-    })
-    if(des.length>1) return null
+    if(this.state.selected[0] == phenomenon || this.state.selected[1] == phenomenon) return null
     // Remove previous ( first ) series 
     var toremoveaxis = chart.yAxis.filter((axis)=>{
         return(axis.axisTitle.textStr === this.state.selected[1])
@@ -248,13 +242,15 @@ handleStats(sensorid,title){
             <Col md={2}>
                         <Card 
                             title="Sensor to choose"
-                            category="All Phenomena from your Box"
+                            category="Click phenomenon to add to graph"
                             content={
                                 <ul>
                                 {
                                     this.state.sensors.map((sensor)=>{
+                                      if(sensor.title == this.state.selected[0] || sensor.title == this.state.selected[1]) return null
+                                    else
                                     return (
-                                    <li key={sensor._id}>
+                                    <li className="sensors" key={sensor._id}>
                                         <Radio
                                             number={sensor._id}
                                             name="radio"
