@@ -13,6 +13,7 @@
     "react": "^16.6.3",
     "react-bootstrap": "0.32.1",
     "react-collapse": "^4.0.3",
+    "react-collapsible": "^2.3.2",
     "react-dom": "^16.6.3",
     "react-highcharts": "^16.0.2",
     "react-motion": "^0.5.2",

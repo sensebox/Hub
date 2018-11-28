@@ -1,12 +1,13 @@
 import React,{Component} from 'react'
 import Button from 'components/CustomButton/CustomButton';
-import { Grid, Row, Col,FormControl, ControlLabel,FormGroup } from "react-bootstrap";
+import { Grid, Row, Col,FormControl, ControlLabel,FormGroup,Panel } from "react-bootstrap";
 import 'assets/skins/all.css'
 import { Card } from "components/Card/Card.jsx";
 import NotificationSystem from 'react-notification-system';
 import {style} from "variables/Variables.jsx";
 import 'assets/sass/custom.css'
 import HighchartsReact from 'highcharts-react-official'
+import Collapsible from 'react-collapsible';
 
 global.Highcharts = require('highcharts');
 require('highcharts/modules/exporting')(global.Highcharts);
@@ -66,7 +67,9 @@ class Live extends Component {
             extreme1high:0,
             extreme2low:0,
             extreme2high:0,
-            title:"Live Messwerte"
+            title:"Live Messwerte",
+            panel1:"glyphicon glyphicon-chevron-up",
+            panel2:"glyphicon glyphcion-chevron-up"
 
         }
         this.handleMQTT = this.handleMQTT.bind(this);
@@ -84,6 +87,8 @@ class Live extends Component {
         this.handleExtreme2low = this.handleExtreme2low.bind(this);
         this.handleExtreme2high = this.handleExtreme2high.bind(this);
         this.setTitle = this.setTitle.bind(this);
+        this.handlePanel1 = this.handlePanel1.bind(this);
+        this.handlePanel2 = this.handlePanel2.bind(this);
     }
     componentDidMount(){
         this.setState({_notificationSystem: this.refs.notificationSystem})
@@ -138,8 +143,12 @@ class Live extends Component {
     stopInterval(position){
         var level = 'warning'; // 'success', 'warning', 'error' or 'info'
         let chart = this.myRef.current.chart
-        var extremes1 = chart.get(this.state.topics[0]+"axis").getExtremes();
-        var extremes2 = chart.get(this.state.topics[1]+"axis").getExtremes();
+
+        var axis1 = chart.get(this.state.topics[0]+"axis")
+        var axis2 = chart.get(this.state.topics[1]+"axis")
+        
+        if(axis1) axis1 = axis1.getExtremes()
+        if(axis2) axis2 = axis2.getExtremes()
         this.state._notificationSystem.addNotification({
             title: (<span data-notify="icon" className="pe-7s-video"></span>),
             message: (
@@ -153,10 +162,10 @@ class Live extends Component {
         });
         this.setState({
             listening:false,
-            extreme1low: extremes1.min,
-            extreme1high: extremes1.max,
-            extreme2low: extremes2.min,
-            extreme2high: extremes2.max
+            extreme1low: axis1.min,
+            extreme1high: axis1.max,
+            extreme2low: axis2.min,
+            extreme2high: axis2.max
         })
         client.end()
     }
@@ -215,50 +224,49 @@ class Live extends Component {
     setExtreme1(){
         let chart = this.myRef.current.chart
         let axis = chart.get(this.state.topics[0]+"axis")
-        axis.setExtremes(this.state.extreme1low,this.state.extreme1high)
+        if(axis)axis.setExtremes(this.state.extreme1low,this.state.extreme1high)
     }
     setExtreme2(){
         let chart = this.myRef.current.chart
         let axis = chart.get(this.state.topics[1]+"axis")
-        
-        axis.setExtremes(this.state.extreme2low,this.state.extreme2high)
+        if(axis)axis.setExtremes(this.state.extreme2low,this.state.extreme2high)
     }
     setTitle(e){
         let chart = this.myRef.current.chart
         const newTitle = e.target.value
         this.setState({title:newTitle})
+        if(chart)
         chart.setTitle({
             text:newTitle
         })
         
     }
-
+    handlePanel1(){
+        var newClass = "" 
+        if(this.state.panel1=="glyphicon glyphicon-chevron-up") newClass = "glyphicon glyphicon-chevron-down"
+        else newClass = "glyphicon glyphicon-chevron-up"
+        this.setState({panel1:newClass})
+    }
+    handlePanel2(){
+        var newClass = "" 
+        if(this.state.panel2=="glyphicon glyphicon-chevron-up") newClass = "glyphicon glyphicon-chevron-down"
+        else newClass = "glyphicon glyphicon-chevron-up"
+        this.setState({panel2:newClass})
+    }
     render(){
         if(!this.state.loading){
         return(
             <Grid fluid>
                 <Row>
                 <NotificationSystem ref="notificationSystem" style={style}/>
-
                 </Row>
-                <Row> 
-                    <Col md={8}>
-                    <Card 
-                        title="Live Recordings of the Sensor"
-                        category="Live Measurement"
-                        stats={this.state.listening ? "Listening for new data":"Currently not listening for new data"}
-                        statsIcon="pe-7s-video"
-                        content={
-            <HighchartsReact
-            highcharts={global.Highcharts}
-            options={options}
-            ref={this.myRef}
-            />                         
-            }
-                        />
-                </Col>
-                <Col md={4}>
                 <Row>
+                <Col md={6}>
+                <Panel bsStyle="success">
+                <Collapsible trigger = {
+                <div onClick={this.handlePanel1} className="panel-heading"> 					
+                <h3 class="panel-title">Configure the graph</h3>
+                 <span class="pull-right clickable"><i class={this.state.panel1}></i></span></div>}>
                     <Card 
                         title="Configure the graph"
                         category = "Set minimum and maxium for the yAxis"
@@ -276,7 +284,8 @@ class Live extends Component {
                                         />
                                 </FormGroup>
                             </Row>
-                            <Row>
+                            <Row fluid>
+                            <Col md={6} className="smi">
                                 <FormGroup>
                                     <ControlLabel>{this.state.topics[0]}</ControlLabel>
                                 <FormControl
@@ -300,9 +309,9 @@ class Live extends Component {
                                     onClick={this.setExtreme1}
                                     />
                                 </FormGroup>
-                            </Row>
-                            { this.state.topics.length>1 ? 
-                            <Row>
+                                </Col>
+                                { this.state.topics.length>1 ? 
+                                <Col md={6} className="smi">
                                 <FormGroup>
                                     <ControlLabel>{this.state.topics[1]}</ControlLabel>
                                 <FormControl
@@ -325,19 +334,26 @@ class Live extends Component {
                                     value="Set scale for second yAxis"
                                     onClick={this.setExtreme2}
                                     />
-                                </FormGroup>
-                                </Row>
+                                </FormGroup></Col>
                                 :
                             <div></div>}
+                            </Row>
                             </Grid>
                         }/>
-                    </Row>
-                    <Row>
-                            <Card 
-                                title="Testing functionalities"
-                                catgerory="Delete after deploy"
-                                stats ="Testing purposes only"
-                                statsIcon="pe-7s-note2"
+                        </Collapsible>
+                        </Panel>
+                        </Col>
+                        
+                        
+                        <Col md={6}>
+                        <Panel bsStyle="success">
+                <Collapsible trigger = {
+                <div onClick={this.handlePanel1} className="panel-heading"> 					
+                <h3 class="panel-title">Configure the graph</h3>
+                 <span class="pull-right clickable"><i class={this.state.panel1}></i></span></div>}>
+                        <Card 
+                                title="Network functionalities"
+                                category="Edit your connection details"
                                 content={
                                     <Grid fluid>
                                     <Row>
@@ -357,7 +373,7 @@ class Live extends Component {
                                                     placeholder="Enter Topic"
                                                     onChange={this.handleTopicInput}
                                                     />
-                                                <FormControl
+                                                {/* <FormControl
                                                     type="text"
                                                     value={this.state.username}
                                                     placeholder="Enter username"
@@ -368,7 +384,7 @@ class Live extends Component {
                                                     value={this.state.password}
                                                     placeholder="Enter Password"
                                                     onChange={this.handlePassword}
-                                                    />
+                                                    /> */}
                                                 <FormControl.Feedback/>
                                             </FormGroup>
                                         </form>
@@ -378,14 +394,31 @@ class Live extends Component {
                                         <Button onClick={this.stopInterval.bind(this,'tc')} className="eric_button" bsStyle ="danger">Stop Listening to MQTT</Button>:
                                         <Button onClick={this.handleMQTT.bind(this,'tc')} className="eric_button" bsStyle="primary">Listen to MQTT</Button>
                                         }
-                                    </Row>
-                                    <Row>
                                         <Button onClick={()=>this.clearGraph()} disabled={this.state.listening} className="eric_button" bsStyle="danger">Clear data</Button>
+
                                     </Row>
                                     </Grid>
                                 }
                                 />
+                                </Collapsible>
+                                </Panel>                                
+                </Col>
                 </Row>
+                <Row> 
+                    <Col md={12}>
+                    <Card 
+                        title="Live Recordings of the Sensor"
+                        category="Live Measurement"
+                        stats={this.state.listening ? "Listening for new data":"Currently not listening for new data"}
+                        statsIcon="pe-7s-video"
+                        content={
+            <HighchartsReact
+            highcharts={global.Highcharts}
+            options={options}
+            ref={this.myRef}
+            />                         
+            }
+                        />
                 </Col>
                 </Row>
             </Grid>
