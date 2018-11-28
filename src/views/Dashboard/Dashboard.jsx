@@ -29,7 +29,7 @@ class Dashboard extends Component {
       graph_data:[],
       hasError:false,
       selectedSensors:[],
-      toggle:true,
+      toggle:false,
       loading:true,
       loaded:true,
       json:[]
@@ -49,7 +49,6 @@ class Dashboard extends Component {
   handleSubmit(){  
     console.log("t")     
     let url = 'https://api.opensensemap.org/boxes/'+this.props.match.params.id;
-    console.log(url)
     fetch(url)      // Fetching Data about the senseBox
     .catch((error)=>{
         console.warn(error)
@@ -104,7 +103,6 @@ handleStats(sensorid,title){
   }
 
   addSeries() {
-    console.log("des?",this.state.loading)
     // init Variables 
     let chart = this.myRef.current.chart
     const data = this.state.json;
