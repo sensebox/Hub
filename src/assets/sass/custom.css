@@ -34,3 +34,27 @@
     display:none
 }
 
+.sensors {
+    list-style-type: none;
+}
+
+.clickable{
+    cursor: pointer;   
+}
+
+.panel-heading span {
+	margin-top: -20px;
+	font-size: 15px;
+}
+.smi{
+    padding:0 !important
+}
+.des{
+    margin:10 !important
+}
+
+.collaps-title{
+    font-weight: 300;
+    color:#333333;
+    font-size:22px !important;
+}
