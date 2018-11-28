@@ -262,7 +262,7 @@ class Live extends Component {
                 </Row>
                 <Row>
                 <Col md={6}>
-                <Panel bsStyle="success">
+                <Panel className="des" bsStyle="success">
                 <Collapsible trigger = {
                 <div onClick={this.handlePanel1} className="panel-heading"> 					
                 <h3 class="panel-title">Configure the graph</h3>
@@ -346,10 +346,10 @@ class Live extends Component {
                         
                         
                         <Col md={6}>
-                        <Panel bsStyle="success">
+                        <Panel className="des" bsStyle="success">
                 <Collapsible trigger = {
                 <div onClick={this.handlePanel1} className="panel-heading"> 					
-                <h3 class="panel-title">Configure the graph</h3>
+                <h3 class="panel-title">Network functionalities</h3>
                  <span class="pull-right clickable"><i class={this.state.panel1}></i></span></div>}>
                         <Card 
                                 title="Network functionalities"
