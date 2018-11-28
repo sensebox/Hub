@@ -65,7 +65,8 @@ class Live extends Component {
             extreme1low:0,
             extreme1high:0,
             extreme2low:0,
-            extreme2high:0
+            extreme2high:0,
+            title:"Live Messwerte"
 
         }
         this.handleMQTT = this.handleMQTT.bind(this);
@@ -82,7 +83,7 @@ class Live extends Component {
         this.handleExtreme1high = this.handleExtreme1high.bind(this);
         this.handleExtreme2low = this.handleExtreme2low.bind(this);
         this.handleExtreme2high = this.handleExtreme2high.bind(this);
-        this.downloadCSV1 = this.downloadCSV1.bind(this);
+        this.setTitle = this.setTitle.bind(this);
     }
     componentDidMount(){
         this.setState({_notificationSystem: this.refs.notificationSystem})
@@ -222,9 +223,14 @@ class Live extends Component {
         
         axis.setExtremes(this.state.extreme2low,this.state.extreme2high)
     }
-    downloadCSV1(){
+    setTitle(e){
         let chart = this.myRef.current.chart
-        console.log(chart.getCSV(true))
+        const newTitle = e.target.value
+        this.setState({title:newTitle})
+        chart.setTitle({
+            text:newTitle
+        })
+        
     }
 
     render(){
@@ -240,7 +246,7 @@ class Live extends Component {
                     <Card 
                         title="Live Recordings of the Sensor"
                         category="Live Measurement"
-                        stats="Listening for new data"
+                        stats={this.state.listening ? "Listening for new data":"Currently not listening for new data"}
                         statsIcon="pe-7s-video"
                         content={
             <HighchartsReact
@@ -258,6 +264,18 @@ class Live extends Component {
                         category = "Set minimum and maxium for the yAxis"
                         content={
                             <Grid fluid>
+                            <Row>
+                                <FormGroup>
+                                    <ControlLabel>Change title</ControlLabel>
+                                    <FormControl
+                                        bsSize="sm"
+                                        type ="text"
+                                        value={this.state.title}
+                                        placeholder="Give new title"
+                                        onChange = {this.setTitle}
+                                        />
+                                </FormGroup>
+                            </Row>
                             <Row>
                                 <FormGroup>
                                     <ControlLabel>{this.state.topics[0]}</ControlLabel>
