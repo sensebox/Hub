@@ -51,7 +51,11 @@ class Live extends Component {
             ip:"10.0.1.2",
             topics:["temperatur","humidity"],
             username:"",
-            topic:""
+            topic:"",
+            extreme1low:0,
+            extreme1high:0,
+            extreme2low:0,
+            extreme2high:0
 
         }
         this.handleMQTT = this.handleMQTT.bind(this);
@@ -62,6 +66,13 @@ class Live extends Component {
         this.handleIPInput = this.handleIPInput.bind(this);
         this.handleTopicInput = this.handleTopicInput.bind(this);
         this.handleUsernameInput = this.handleUsernameInput.bind(this);
+        this.setExtreme1 = this.setExtreme1.bind(this);
+        this.setExtreme2 = this.setExtreme2.bind(this);
+        this.handleExtreme1low = this.handleExtreme1low.bind(this);
+        this.handleExtreme1high = this.handleExtreme1high.bind(this);
+        this.handleExtreme2low = this.handleExtreme2low.bind(this);
+        this.handleExtreme2high = this.handleExtreme2high.bind(this);
+
     }
     componentDidMount(){
         this.setState({_notificationSystem: this.refs.notificationSystem})
@@ -115,6 +126,9 @@ class Live extends Component {
     }
     stopInterval(position){
         var level = 'warning'; // 'success', 'warning', 'error' or 'info'
+        let chart = this.myRef.current.chart
+        var extremes1 = chart.get(this.state.topics[0]+"axis").getExtremes();
+        var extremes2 = chart.get(this.state.topics[1]+"axis").getExtremes();
         this.state._notificationSystem.addNotification({
             title: (<span data-notify="icon" className="pe-7s-video"></span>),
             message: (
@@ -126,7 +140,13 @@ class Live extends Component {
             position: position,
             autoDismiss: 5,
         });
-        this.setState({listening:false})
+        this.setState({
+            listening:false,
+            extreme1low: extremes1.min,
+            extreme1high: extremes1.max,
+            extreme2low: extremes2.min,
+            extreme2high: extremes2.max
+        })
         client.end()
     }
 
@@ -169,6 +189,30 @@ class Live extends Component {
     handleUsernameInput(e){
         this.setState({ username: e.target.value })
     }
+    handleExtreme1low(e){
+        this.setState({extreme1low:e.target.value})
+    }
+    handleExtreme1high(e){
+        this.setState({extreme1high:e.target.value})
+    }
+    handleExtreme2low(e){
+        this.setState({extreme2low:e.target.value})
+    }
+    handleExtreme2high(e){
+        this.setState({extreme2high:e.target.value})
+    }
+    setExtreme1(){
+        let chart = this.myRef.current.chart
+        let axis = chart.get(this.state.topics[0]+"axis")
+        axis.setExtremes(this.state.extreme1low,this.state.extreme1high)
+    }
+    setExtreme2(){
+        let chart = this.myRef.current.chart
+        let axis = chart.get(this.state.topics[1]+"axis")
+        
+        axis.setExtremes(this.state.extreme2low,this.state.extreme2high)
+    }
+
 
     render(){
         if(!this.state.loading){
@@ -190,25 +234,72 @@ class Live extends Component {
             highcharts={Highcharts}
             options={options}
             ref={this.myRef}
-          />                         }
+            />                         
+            }
                         />
                 </Col>
                 <Col md={4}>
                 <Row>
-                        <Card
-                            title = "Last Measurement"
-                            category = "30 Seconds Ago"
-                            stats = "Listening for new data"
-                            statsIcon = "pe-7s-video"
-                            content ={
-                                <ul>
-                                    <li>Value : {this.state.last}</li>
-                                    <li>Timestep : {time} </li>
-                                    <li>Sensor ID: 5a30ea5375a96c000f012fe0 </li>
-                                    <li>Information : Number</li>
-                                </ul>
-                            }
-                            />
+                    <Card 
+                        title="Configure the graph"
+                        category = "Set minimum and maxium for the yAxis"
+                        content={
+                            <Grid fluid>
+                            <Row>
+                                <FormGroup>
+                                    <ControlLabel>{this.state.topics[0]}</ControlLabel>
+                                <FormControl
+                                        bsSize="sm"
+                                        type ="number"
+                                        value={this.state.extreme1low}
+                                        placeholder="Scale"
+                                        onChange = {this.handleExtreme1low}
+                                        />
+                                <FormControl
+                                        bsSize="sm"
+                                        type ="number"
+                                        value={this.state.extreme1high}
+                                        placeholder="Scale"
+                                        onChange = {this.handleExtreme1high}
+                                        />     
+                                <FormControl
+                                    bsSIze ="sm"
+                                    type="button"
+                                    value="Set scale for first yAxis"
+                                    onClick={this.setExtreme1}
+                                    />
+                                </FormGroup>
+                            </Row>
+                            { this.state.topics.length>1 ? 
+                            <Row>
+                                <FormGroup>
+                                    <ControlLabel>{this.state.topics[1]}</ControlLabel>
+                                <FormControl
+                                        bsSize="sm"
+                                        type ="number"
+                                        value={this.state.extreme2low}
+                                        placeholder="Scale"
+                                        onChange = {this.handleExtreme2low}
+                                        />
+                                <FormControl
+                                        bsSize="sm"
+                                        type ="number"
+                                        value={this.state.extreme2high}
+                                        placeholder="Scale"
+                                        onChange = {this.handleExtreme2high}
+                                        />     
+                                <FormControl
+                                    bsSIze ="sm"
+                                    type="button"
+                                    value="Set scale for second yAxis"
+                                    onClick={this.setExtreme2}
+                                    />
+                                </FormGroup>
+                                </Row>
+                                :
+                            <div></div>}
+                            </Grid>
+                        }/>
                     </Row>
                     <Row>
                             <Card 
@@ -266,7 +357,6 @@ class Live extends Component {
                 </Row>
                 </Col>
                 </Row>
-  
             </Grid>
         )}
         else{
