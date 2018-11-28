@@ -6,12 +6,13 @@ import { Card } from "components/Card/Card.jsx";
 import NotificationSystem from 'react-notification-system';
 import {style} from "variables/Variables.jsx";
 import 'assets/sass/custom.css'
-import ReactHighcharts from 'react-highcharts'
+import Highcharts from 'highcharts'
+import HighchartsReact from 'highcharts-react-official'
 
 // import mqtt from 'mqtt'
 
 var mqtt = require('mqtt')
-var config = {
+var options = {
     chart: {
         defaultSeriesType: 'spline'
     },
@@ -24,6 +25,8 @@ var config = {
         text:"Live Messwerte"
     }
   };
+
+
 var time = 0 
 var client;
 /*
@@ -36,7 +39,9 @@ var client;
 
 class Live extends Component {
     constructor(props){
-        super()
+        super(props)
+        this.myRef = React.createRef();  
+
         this.state={
             loading:false,
             _notificationSystem: null,
@@ -44,7 +49,7 @@ class Live extends Component {
             lastMeasurement:null,
             timestep:0,
             ip:"10.0.1.2",
-            topics:[],
+            topics:["temperatur","humidity"],
             username:"",
             topic:""
 
@@ -84,34 +89,32 @@ class Live extends Component {
             position: position,
             autoDismiss: 5,
         });
-        // prepare config variable for topic(s)
-        var inputArr = this.state.topics
-        for(var i=0;i<inputArr.length;i++){
-            var opposite
-            if(i===0) 
-                opposite=true 
-            else 
-                opposite=false
-            config.series.push({
-                id:inputArr[i],
-                name:inputArr[i],
+        let chart = this.myRef.current.chart
+        if(!chart.get(this.state.topics[0]))
+        {this.state.topics.map((topic,index)=>{
+            
+            chart.addAxis({
+                id:topic+"axis",
+                title:{
+                    text:topic
+                },
+                opposite:index
+                })
+            chart.addSeries({
+                name:topic,
+                id:topic,
+                type:"spline",
                 data:[],
-                yAxis:i,
+                yAxis:topic+"axis",
                 marker:{enabled:false}
             })
-            config.yAxis.push({
-                title:{
-                    text:inputArr[i]
-                },
-                opposite:opposite
-            })
-        }
+        })}
         this.setState({listening:true})
         this.handleBroker();
 
     }
     stopInterval(position){
-        var level = 'info'; // 'success', 'warning', 'error' or 'info'
+        var level = 'warning'; // 'success', 'warning', 'error' or 'info'
         this.state._notificationSystem.addNotification({
             title: (<span data-notify="icon" className="pe-7s-video"></span>),
             message: (
@@ -126,8 +129,9 @@ class Live extends Component {
         this.setState({listening:false})
         client.end()
     }
+
     clearGraph(){
-        let chart = this.refs.chart.getChart()
+        let chart = this.myRef.current.chart
         while( chart.series.length > 0) {
             chart.series[0].remove( false );
             chart.userOptions.series.shift();
@@ -140,6 +144,8 @@ class Live extends Component {
      handleBroker(){      
         client = mqtt.connect('mqtt://'+this.state.ip + ':1884')
         var that = this;
+        let chart = this.myRef.current.chart
+
         client.on('connect', function () {
             // On connection subscribe to the topic
             client.subscribe(that.state.topics, function (err,value) {
@@ -150,19 +156,8 @@ class Live extends Component {
       
       client.on('message', function (topic, message) {
             var value = parseFloat(message.toString());
-            let chart = that.refs.chart.getChart()        
-            switch(topic){
-                case chart.series[0].userOptions.id:
-                    chart.series[0].addPoint(value ,true,false)
-                break;
-                case chart.series[1].userOptions.id:
-                    chart.series[1].addPoint(value ,true,false)
-                break;
-                default:
-                    chart.series[0].addPoint(value ,true,false)
-
-            }          
-      })  
+            chart.get(topic).addPoint(value,true,false)
+                })  
     }
     handleIPInput(e){
         this.setState({ ip: e.target.value })
@@ -191,8 +186,11 @@ class Live extends Component {
                         stats="Listening for new data"
                         statsIcon="pe-7s-video"
                         content={
-                            <ReactHighcharts config={config} ref="chart"></ReactHighcharts>
-                        }
+            <HighchartsReact
+            highcharts={Highcharts}
+            options={options}
+            ref={this.myRef}
+          />                         }
                         />
                 </Col>
                 <Col md={4}>
