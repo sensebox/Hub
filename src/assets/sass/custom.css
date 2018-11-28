@@ -52,3 +52,9 @@
 .des{
     margin:10 !important
 }
+
+.collaps-title{
+    font-weight: 300;
+    color:#333333;
+    font-size:22px !important;
+}

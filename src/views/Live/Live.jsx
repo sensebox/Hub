@@ -69,7 +69,7 @@ class Live extends Component {
             extreme2high:0,
             title:"Live Messwerte",
             panel1:"glyphicon glyphicon-chevron-up",
-            panel2:"glyphicon glyphcion-chevron-up"
+            panel2:"glyphicon glyphicon-chevron-up"
 
         }
         this.handleMQTT = this.handleMQTT.bind(this);
@@ -265,10 +265,9 @@ class Live extends Component {
                 <Panel className="des" bsStyle="success">
                 <Collapsible trigger = {
                 <div onClick={this.handlePanel1} className="panel-heading"> 					
-                <h3 class="panel-title">Configure the graph</h3>
+                <h3 class="panel-title collaps-title">Configure the graph</h3>
                  <span class="pull-right clickable"><i class={this.state.panel1}></i></span></div>}>
                     <Card 
-                        title="Configure the graph"
                         category = "Set minimum and maxium for the yAxis"
                         content={
                             <Grid fluid>
@@ -348,11 +347,10 @@ class Live extends Component {
                         <Col md={6}>
                         <Panel className="des" bsStyle="success">
                 <Collapsible trigger = {
-                <div onClick={this.handlePanel1} className="panel-heading"> 					
-                <h3 class="panel-title">Network functionalities</h3>
-                 <span class="pull-right clickable"><i class={this.state.panel1}></i></span></div>}>
+                <div onClick={this.handlePanel2} className="panel-heading"> 					
+                <h3 class="panel-title collaps-title">Network functionalities</h3>
+                 <span class="pull-right clickable"><i class={this.state.panel2}></i></span></div>}>
                         <Card 
-                                title="Network functionalities"
                                 category="Edit your connection details"
                                 content={
                                     <Grid fluid>
