@@ -6,15 +6,17 @@ import { Card } from "components/Card/Card.jsx";
 import NotificationSystem from 'react-notification-system';
 import {style} from "variables/Variables.jsx";
 import 'assets/sass/custom.css'
-import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 
-// import mqtt from 'mqtt'
+global.Highcharts = require('highcharts');
+require('highcharts/modules/exporting')(global.Highcharts);
+require('highcharts/modules/export-data')(global.Highcharts);
 
 var mqtt = require('mqtt')
 var options = {
     chart: {
-        defaultSeriesType: 'spline'
+        defaultSeriesType: 'spline',
+
     },
     xAxis: {
         tickPixelInterval: 150,
@@ -23,7 +25,15 @@ var options = {
     yAxis:[],
     title:{
         text:"Live Messwerte"
+    },
+    exporting:{
+        buttons: {
+            contextButton:{
+                menuItems:['downloadPNG','downloadSVG','downloadCSV']
+            }
+        }
     }
+
   };
 
 
@@ -72,7 +82,7 @@ class Live extends Component {
         this.handleExtreme1high = this.handleExtreme1high.bind(this);
         this.handleExtreme2low = this.handleExtreme2low.bind(this);
         this.handleExtreme2high = this.handleExtreme2high.bind(this);
-
+        this.downloadCSV1 = this.downloadCSV1.bind(this);
     }
     componentDidMount(){
         this.setState({_notificationSystem: this.refs.notificationSystem})
@@ -212,7 +222,10 @@ class Live extends Component {
         
         axis.setExtremes(this.state.extreme2low,this.state.extreme2high)
     }
-
+    downloadCSV1(){
+        let chart = this.myRef.current.chart
+        console.log(chart.getCSV(true))
+    }
 
     render(){
         if(!this.state.loading){
@@ -231,7 +244,7 @@ class Live extends Component {
                         statsIcon="pe-7s-video"
                         content={
             <HighchartsReact
-            highcharts={Highcharts}
+            highcharts={global.Highcharts}
             options={options}
             ref={this.myRef}
             />                         
@@ -263,7 +276,7 @@ class Live extends Component {
                                         onChange = {this.handleExtreme1high}
                                         />     
                                 <FormControl
-                                    bsSIze ="sm"
+                                    bsSize ="sm"
                                     type="button"
                                     value="Set scale for first yAxis"
                                     onClick={this.setExtreme1}
@@ -289,7 +302,7 @@ class Live extends Component {
                                         onChange = {this.handleExtreme2high}
                                         />     
                                 <FormControl
-                                    bsSIze ="sm"
+                                    bsSize ="sm"
                                     type="button"
                                     value="Set scale for second yAxis"
                                     onClick={this.setExtreme2}
