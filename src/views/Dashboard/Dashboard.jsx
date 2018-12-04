@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Grid, Row, Col } from "react-bootstrap";
+import { Grid, Row, Col ,Panel} from "react-bootstrap";
 import 'assets/skins/all.css'
 import { Card } from "components/Card/Card.jsx";
 import { StatsCard } from "components/StatsCard/StatsCard.jsx";
@@ -8,6 +8,7 @@ import {Redirect} from 'react-router-dom'
 import Radio from 'components/CustomRadio/CustomRadio'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
+import Collapsible from 'react-collapsible';
 
 const options = {
   title: {
@@ -32,13 +33,15 @@ class Dashboard extends Component {
       toggle:false,
       loading:true,
       loaded:true,
-      json:[]
+      json:[],
+      panel1:"glyphicon glyphicon-chevron-up",
     }
     this.handleRadio = this.handleRadio.bind(this);
     this.addSeries = this.addSeries.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleStats = this.handleStats.bind(this)
-  }
+    this.handlePanel1 = this.handlePanel1.bind(this);
+  } 
   componentDidMount(){
     this.handleSubmit(this.addSeries)
   }
@@ -47,7 +50,6 @@ class Dashboard extends Component {
   }
 
   handleSubmit(){  
-    console.log("t")     
     let url = 'https://api.opensensemap.org/boxes/'+this.props.match.params.id;
     fetch(url)      // Fetching Data about the senseBox
     .catch((error)=>{
@@ -71,7 +73,6 @@ class Dashboard extends Component {
 }
 
 handleStats(sensorid,title){
-  console.log(sensorid)
     let url = 'https://api.opensensemap.org/boxes/'+this.props.match.params.id+'/data/'+sensorid;
     fetch(url)
     .catch((error)=>{
@@ -198,17 +199,28 @@ handleStats(sensorid,title){
         toggle:!this.state.toggle,
     })
     }
+    handlePanel1(){
+      var newClass = "" 
+      if(this.state.panel1=="glyphicon glyphicon-chevron-up") newClass = "glyphicon glyphicon-chevron-down"
+      else newClass = "glyphicon glyphicon-chevron-up"
+      this.setState({panel1:newClass})
+  }
 
   render() {
     if(this.state.hasError){
       return <Redirect to="/dashboard"/>
     }
     if(!this.state.loading){
-      console.log(this.state)
     return (
-      <div className="content">
-        <Grid fluid>
+      <Grid fluid>
         <Row>
+          <Col md ={12}>
+          <Panel className="des" bsStyle="success">
+            <Collapsible open={true} trigger={
+                <div onClick={this.handlePanel1} className="panel-heading"> 					
+                <h3 className="panel-title clickable collaps-title">Live measurements</h3>
+                 <span className="pull-right clickable"><i className={this.state.panel1}></i></span></div>}>
+           <div className="panel-body">
            {this.state.sensors.map((sensor)=>(
             <Col key={sensor._id} lg={3} md={6}>
              <StatsCard             
@@ -218,7 +230,10 @@ handleStats(sensorid,title){
             </div>}
                 statsIconText="Updated just now" statsText={sensor.title} statsValue={sensor.lastMeasurement.value+" "+sensor.unit}/>
             </Col>
-          ))}  
+          ))}  </div>
+          </Collapsible>
+          </Panel>
+          </Col>
           </Row>
           <Row>
             <Col md={10}>
@@ -261,12 +276,12 @@ handleStats(sensorid,title){
                             })
                             }
                             </ul> 
+                            
                        }/>
                 </Col>
-
+                
           </Row>
         </Grid>
-      </div>
     )};// end if loading  
     if(this.state.loading){
         return(
