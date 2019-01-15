@@ -28,7 +28,7 @@ class HeaderLinks extends Component {
             Go to openSenseMap
           </NavItem>
           <NavItem eventKey={4} href={link1} >
-           Go to Live dashboard
+           Go to live dashboard
           </NavItem>
         </Nav>
       </div>
