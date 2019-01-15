@@ -1,10 +1,8 @@
 import React, { Component } from "react";
 import { Grid, Row, Col, Button, FormControl } from "react-bootstrap";
-import {Link,Route} from 'react-router-dom'
-import Dashboard from 'views/Dashboard/Dashboard'
+import {Link} from 'react-router-dom'
 import img from 'assets/img/banner.jpg'
 import 'assets/sass/custom.css'
-var moment = require('moment')
 
 class Go extends Component {
     constructor(props){

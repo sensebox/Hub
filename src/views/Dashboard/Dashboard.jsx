@@ -83,8 +83,8 @@ handleStats(sensorid,title){
     .then((json)=>this.setState((prevState)=>{
         json:prevState.json.push({typ:title,data:json})
     },function(){
-      if(this.state.length==2)this.setState({selected:[this.state.json[0].title,this.state.json[1].title]})
-      if(this.state.json.length == this.state.sensors.length)this.addSeries()
+      if(this.state.length===2)this.setState({selected:[this.state.json[0].title,this.state.json[1].title]})
+      if(this.state.json.length === this.state.sensors.length)this.addSeries()
 
     }))
 
@@ -109,7 +109,7 @@ handleStats(sensorid,title){
     const data = this.state.json;
     var arr = [];
     var dateArray = []
-    for(var i = 0 ;i<data.length;i++){
+    for(let i = 0 ;i<data.length;i++){
         var newArr = {typ:data[i].typ,data:[]}
         for(var u = data[i].data.length-1;u>=0;u--){
             newArr.data.push(parseFloat(data[i].data[u].value))
@@ -133,9 +133,9 @@ handleStats(sensorid,title){
         categories:arr[arr.length-1]
     },true)
     // Loop first 2 entries and display in graph 
-    for(var i=0;i<2;i++){
+    for(let i=0;i<2;i++){
         var opposite = false;
-        if(i == 1 ) opposite = true
+        if(i === 1 ) opposite = true
         chart.addAxis({
             id:data[i].typ+"axis",
             title:{
@@ -167,7 +167,7 @@ handleStats(sensorid,title){
     var newPheno = this.state.data_new.filter((sensor)=>{
         return(sensor.typ === phenomenon)
     })
-    if(this.state.selected[0] == phenomenon || this.state.selected[1] == phenomenon) return null
+    if(this.state.selected[0] === phenomenon || this.state.selected[1] === phenomenon) return null
     // Remove previous ( first ) series 
     var toremoveaxis = chart.yAxis.filter((axis)=>{
         return(axis.axisTitle.textStr === this.state.selected[1])
@@ -201,7 +201,7 @@ handleStats(sensorid,title){
     }
     handlePanel1(){
       var newClass = "" 
-      if(this.state.panel1=="glyphicon glyphicon-chevron-up") newClass = "glyphicon glyphicon-chevron-down"
+      if(this.state.panel1==="glyphicon glyphicon-chevron-up") newClass = "glyphicon glyphicon-chevron-down"
       else newClass = "glyphicon glyphicon-chevron-up"
       this.setState({panel1:newClass})
   }
@@ -260,7 +260,7 @@ handleStats(sensorid,title){
                                 <ul>
                                 {
                                     this.state.sensors.map((sensor)=>{
-                                      if(sensor.title == this.state.selected[0] || sensor.title == this.state.selected[1]) return null
+                                      if(sensor.title === this.state.selected[0] || sensor.title === this.state.selected[1]) return null
                                     else
                                     return (
                                     <li className="sensors" key={sensor._id}>

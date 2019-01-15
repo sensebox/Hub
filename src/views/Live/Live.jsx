@@ -38,7 +38,6 @@ var options = {
   };
 
 
-var time = 0 
 var client;
 /*
     The live page should show live measurements by a sensor
@@ -104,9 +103,9 @@ class Live extends Component {
 
     handleMQTT(position){
         // give notification
-
+        var level;
         if(!this.state.topics || !this.state.key || !this.state.ip){
-            var level = "error";
+             level = "error";
             this.state._notificationSystem.addNotification({
                 title: (<span data-notify="icon" className="pe-7s-video"></span>),
                 message: (
@@ -122,7 +121,7 @@ class Live extends Component {
         else
         {
 
-            var level = 'info'; // 'success', 'warning', 'error' or 'info'
+            level = 'info'; // 'success', 'warning', 'error' or 'info'
             this.state._notificationSystem.addNotification({
                 title: (<span data-notify="icon" className="pe-7s-video"></span>),
                 message: (
@@ -225,7 +224,7 @@ class Live extends Component {
         var topics = input.split(',');
         var topics_new =[];
         topics.map((topic)=>{
-            topics_new.push(this.state.key + "/"+topic)
+            topics_new.push(this.state.key + "/"+topic) 
         })
         this.setState({ topics: topics,topic:input })
     }
@@ -266,13 +265,13 @@ class Live extends Component {
     }
     handlePanel1(){
         var newClass = "" 
-        if(this.state.panel1=="glyphicon glyphicon-chevron-up") newClass = "glyphicon glyphicon-chevron-down"
+        if(this.state.panel1==="glyphicon glyphicon-chevron-up") newClass = "glyphicon glyphicon-chevron-down"
         else newClass = "glyphicon glyphicon-chevron-up"
         this.setState({panel1:newClass})
     }
     handlePanel2(){
         var newClass = "" 
-        if(this.state.panel2=="glyphicon glyphicon-chevron-up") newClass = "glyphicon glyphicon-chevron-down"
+        if(this.state.panel2==="glyphicon glyphicon-chevron-up") newClass = "glyphicon glyphicon-chevron-down"
         else newClass = "glyphicon glyphicon-chevron-up"
         this.setState({panel2:newClass})
     }
