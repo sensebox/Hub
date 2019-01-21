@@ -88,7 +88,14 @@ handleStats(sensorid,title){
         console.warn(error)
         return null
     })
-    .then((response)=>response.json())
+    .then((response)=>{
+        if(response.ok)
+            return response.json()
+        this.setState({
+            hasError:"no measurement"
+        })
+        throw new Error('Box has no measurements to fetch')
+    })
     .then((json)=>this.setState((prevState)=>{
         json:prevState.json.push({typ:title,data:json})
     },function(){
@@ -96,7 +103,9 @@ handleStats(sensorid,title){
       if(this.state.json.length === this.state.sensors.length)this.addSeries()
 
     }))
-
+    .catch(function(error){
+        console.log('Error: ',error.message);
+    })
 }
 
   cutArray(steps,oldArr){
