@@ -9,7 +9,9 @@ import Radio from 'components/CustomRadio/CustomRadio'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import Collapsible from 'react-collapsible';
-
+import Button from 'components/CustomButton/CustomButton';
+import {Link} from 'react-router-dom'
+import ErrorPage from 'components/ErrorPage/ErrorPage'
 const options = {
   title: {
     text: ''
@@ -22,7 +24,6 @@ class Dashboard extends Component {
   constructor(props){
     super(props)
     this.myRef = React.createRef();  
-    console.log(props) 
     this.state={
       data:[], // Array that contains the data that is visualized in the graph 
       selected:["Loading...",""],
@@ -52,11 +53,16 @@ class Dashboard extends Component {
   handleSubmit(){  
     let url = 'https://api.opensensemap.org/boxes/'+this.props.match.params.id;
     fetch(url)      // Fetching Data about the senseBox
-    .catch((error)=>{
-        console.warn(error)
-        return null
+    .then((response)=>{
+        if(response.ok){
+            return response.json()
+        }
+        this.setState({
+            hasError:"network"
+        })
+        throw new Error('Network response was not ok');   
+       
     })
-    .then((response)=>response.json())
     .then((json)=>this.setState({
         senseBox:json,
         sensors:json.sensors
@@ -69,6 +75,9 @@ class Dashboard extends Component {
       this.setState(
         {loading:false
       })
+    })
+    .catch(function(error){
+        console.log('Error: ',error.message);
     })
 }
 
@@ -208,8 +217,10 @@ handleStats(sensorid,title){
 
   render() {
     if(this.state.hasError){
-      return <Redirect to="/dashboard"/>
-    }
+      return( 
+          <ErrorPage/>
+          ) 
+           }
     if(!this.state.loading){
     return (
       <Grid fluid>
