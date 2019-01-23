@@ -199,11 +199,24 @@ handleStats(sensorid,title,range){
    * create an xAxis for HighCharts
    */
   createXAxis(){
+
+    const length = this.state.json[0].data.length;
+    const to = moment(this.state.json[0].data[0].createdAt).format('YYYY-MM-DD')
+    const from = moment(this.state.json[0].data[length-1].createdAt).format('YYYY-MM-DD')
+    console.log(to)
+    this.setState({
+        from:from,
+        to:to
+    })
+
     var dateArray = []
     this.state.json[0].data.map((measurement)=>{
         dateArray.push(moment(measurement.createdAt).format("DD.MM.YYYY HH:mm"))
     })
     dateArray = dateArray.reverse()
+
+    
+
     return dateArray
   }
 
@@ -221,6 +234,7 @@ handleStats(sensorid,title,range){
         tickInterval:280,
         categories:xAxis
     },true)
+    
     this.setState({
         range:"Von "+xAxis[0]+" bis "+xAxis[xAxis.length-1],
     })
@@ -413,7 +427,7 @@ handleStats(sensorid,title,range){
                             content={
                             <Grid fluid>
                               <FormInputs
-                                ncols={["col-md-6","col-md-6","col-md-12"]}
+                                ncols={["col-md-12","col-md-12","col-md-12"]}
                                 proprieties = {[
                                     {
                                         label:"From",
@@ -428,7 +442,7 @@ handleStats(sensorid,title,range){
                                         id:"to",
                                         type:"date",
                                         bsClass:"form-control",
-                                        placeholder:this.state.to,
+                                        defaultValue:this.state.to,
                                         onChange:this.onChangeTo
                                     },
                                     {
