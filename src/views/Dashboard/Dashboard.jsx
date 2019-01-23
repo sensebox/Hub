@@ -35,20 +35,15 @@ class Dashboard extends Component {
     super(props)
     this.myRef = React.createRef();  
     this.state={
-      data:[], // Array that contains the data that is visualized in the graph 
       selected:["Loading...",""],
       checkboxChecked:false,
-      graph_data:[],
       hasError:false,
-      selectedSensors:[],
       toggle:true,
       loading:true,
-      loaded:true,
       json:[],
       panel1:"glyphicon glyphicon-chevron-up",
       from:"",
       to:"",
-      loading_stats:true,
     }
     this.handleRadio = this.handleRadio.bind(this);
     this.handlePanel1 = this.handlePanel1.bind(this);
@@ -140,8 +135,11 @@ class Dashboard extends Component {
     submitStats(){
         let chart = this.myRef.current.chart
         chart.showLoading();
-        this.removeSeries(this.state.selected[0])
-        this.removeSeries(this.state.selected[1])
+        if(chart.series>0){
+            this.removeSeries(this.state.selected[0])
+            this.removeSeries(this.state.selected[1])
+        }
+
         this.setState({
             json:[]
         },function(){
@@ -223,10 +221,7 @@ class Dashboard extends Component {
             console.log('Error: ', error.message)
         })
         }
-
-
 /* ------------------------------------Visualization-------------------------------*/
-
     /**
      * Returns an array that is derived from the senseBox data
      * this array holds all dates and can be used to 
@@ -271,7 +266,6 @@ class Dashboard extends Component {
             range:"Von "+xAxis[0]+" bis "+xAxis[xAxis.length-1],
         })
     }
-
     /**
      * Returns an array that is derived from the senseBox data
      * this array holds all an object which contains all values 
@@ -329,7 +323,7 @@ class Dashboard extends Component {
         chart.get(title+"axis").remove();
         
     }
- /*-------------------END------------------*/
+ /*-------------------Start render()------------------*/
 
   render() {
     if(this.state.hasError){

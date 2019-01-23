@@ -12,6 +12,7 @@ import Collapsible from 'react-collapsible';
 global.Highcharts = require('highcharts');
 require('highcharts/modules/exporting')(global.Highcharts);
 require('highcharts/modules/export-data')(global.Highcharts);
+require('highcharts/modules/no-data-to-display')(global.Highcharts);
 
 var mqtt = require('mqtt')
 var options = {
