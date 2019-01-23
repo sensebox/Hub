@@ -63,7 +63,7 @@ class Dashboard extends Component {
         })
     }
     onChangeTo(e){
-        var newDate = e.target.value + "T00:00:00.032Z";
+        var newDate = e.target.value;
         this.setState({
             to:newDate
         })
@@ -135,11 +135,11 @@ class Dashboard extends Component {
     submitStats(){
         let chart = this.myRef.current.chart
         chart.showLoading();
-        if(chart.series>0){
+        if(chart.series.length>0){
+            console.log("remove")
             this.removeSeries(this.state.selected[0])
             this.removeSeries(this.state.selected[1])
         }
-
         this.setState({
             json:[]
         },function(){
@@ -190,7 +190,7 @@ class Dashboard extends Component {
     getStatistics(sensorid,title,initial){
         let url = 'https://api.opensensemap.org/'
         initial ?   url+="statistics/descriptive?boxId="+this.props.match.params.id+"&phenomenon="+
-                    title+"&from-date="+this.state.from+"T00:00:00.032Z&to-date="+this.state.to+"T00:00:00.032Z&operation=arithmeticMean"+
+                    title+"&from-date="+this.state.from+"T00:00:00.032Z&to-date="+this.state.to+"T23:59:00.032Z&operation=arithmeticMean"+
                     "&window=300000&format=json" 
                 : 
                     url+='boxes/'+this.props.match.params.id+'/data/'+sensorid 
@@ -258,7 +258,7 @@ class Dashboard extends Component {
         })
         chart.xAxis[0].remove(); // make sure that only one xAxis exists at a time
         chart.addAxis({
-            tickInterval:280,
+            tickInterval:Math.floor(xAxis.length/12),
             categories:xAxis
         },true)
         
@@ -411,7 +411,8 @@ class Dashboard extends Component {
                                         type:"date",
                                         bsClass:"form-control",
                                         defaultValue:this.state.from,
-                                        onChange:this.onChangeFrom
+                                        onChange:this.onChangeFrom,
+                                        max:this.state.to,
                                     },
                                     {
                                         label:"To",
@@ -419,7 +420,8 @@ class Dashboard extends Component {
                                         type:"date",
                                         bsClass:"form-control",
                                         defaultValue:this.state.to,
-                                        onChange:this.onChangeTo
+                                        onChange:this.onChangeTo,
+                                        min:this.state.from
                                     },
                                     {
                                         label:"Submit",
