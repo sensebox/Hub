@@ -12,6 +12,9 @@ import Collapsible from 'react-collapsible';
 import Button from 'components/CustomButton/CustomButton';
 import {Link} from 'react-router-dom'
 import ErrorPage from 'components/ErrorPage/ErrorPage'
+import DatePicker from 'react-datepicker'
+import {FormInputs} from 'components/FormInputs/FormInputs.jsx'
+import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from 'react-dates';
 const options = {
   title: {
     text: ''
@@ -36,12 +39,19 @@ class Dashboard extends Component {
       loaded:true,
       json:[],
       panel1:"glyphicon glyphicon-chevron-up",
+      from:"",
+      to:""
+
+
     }
     this.handleRadio = this.handleRadio.bind(this);
     this.addSeries = this.addSeries.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleStats = this.handleStats.bind(this)
     this.handlePanel1 = this.handlePanel1.bind(this);
+    this.onChangeFrom = this.onChangeFrom.bind(this);
+    this.onChangeTo = this.onChangeTo.bind(this)
+    this.submitStats = this.submitStats.bind(this);
   } 
   componentDidMount(){
     this.handleSubmit(this.addSeries)
@@ -69,7 +79,7 @@ class Dashboard extends Component {
                 }))
     .then(()=>{
       this.state.sensors.map((sensor)=>{
-        this.handleStats(sensor._id,sensor.title);
+        this.handleStats(sensor._id,sensor.title,false);
     })})
     .then(()=>{
       this.setState(
@@ -81,9 +91,15 @@ class Dashboard extends Component {
     })
 }
 
-handleStats(sensorid,title){
+handleStats(sensorid,title,range){
     let url = 'https://api.opensensemap.org/boxes/'+this.props.match.params.id+'/data/'+sensorid;
-    fetch(url)
+    if(range){
+     
+        url = url + "?from-date="+this.state.from+"&to-date="+this.state.to
+        console.log(url);
+        
+    }
+        fetch(url)
     .catch((error)=>{
         console.warn(error)
         return null
@@ -124,6 +140,7 @@ handleStats(sensorid,title){
   addSeries() {
     // init Variables 
     let chart = this.myRef.current.chart
+    console.log(chart)
     const data = this.state.json;
     var arr = [];
     var dateArray = []
@@ -178,7 +195,22 @@ handleStats(sensorid,title){
     
   }
 
-
+  onChangeFrom(e){
+    var newDate = e.target.value + "T00:00:00.032Z";
+    console.log(newDate);
+      this.setState({
+          from:newDate 
+      })
+  }
+  onChangeTo(e){
+      var newDate = e.target.value + "T00:00:00.032Z";
+      console.log(newDate)
+      this.setState({
+          to:newDate
+      })
+  }
+  submitStats(){
+  }
   handleRadio(e){   
     let chart = this.myRef.current.chart
     const phenomenon =e.target.dataset.title
@@ -248,7 +280,7 @@ handleStats(sensorid,title){
                 <div className="radio_group">
 
             </div>}
-                statsIconText="Updated just now" statsText={sensor.title} statsValue={sensor.lastMeasurement.value+" "+sensor.unit}/>
+                statsIconText={sensor.lastMeasurement.createdAt} statsText={sensor.title} statsValue={sensor.lastMeasurement.value+" "+sensor.unit}/>
             </Col>
           ))}  </div>
           </Collapsible>
@@ -299,7 +331,44 @@ handleStats(sensorid,title){
                             
                        }/>
                 </Col>
-                
+                <Col md={2}>
+                       <Card 
+                            title="Choose a date"
+                            category="Select time frame for the statistics"
+                            content={
+                            <Grid fluid>
+                              <FormInputs
+                                ncols={["col-md-6","col-md-6","col-md-12"]}
+                                proprieties = {[
+                                    {
+                                        label:"From",
+                                        id:"from",
+                                        type:"date",
+                                        bsClass:"form-control",
+                                        defaultValue:this.state.from,
+                                        onChange:this.onChangeFrom
+                                    },
+                                    {
+                                        label:"To",
+                                        id:"to",
+                                        type:"date",
+                                        bsClass:"form-control",
+                                        placeholder:this.state.to,
+                                        onChange:this.onChangeTo
+                                    },
+                                    {
+                                        label:"Submit",
+                                        type:"button",
+                                        bsClass:"form-control",
+                                        value:"Submit new dates",
+                                        onClick:this.submitStats
+                                    }
+                                ]}
+                              />
+                            </Grid>
+                            }
+                        />
+                </Col>
           </Row>
         </Grid>
     )};// end if loading  

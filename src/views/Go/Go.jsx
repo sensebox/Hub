@@ -11,7 +11,7 @@ class Go extends Component {
         super(props)
         console.log(props);
         this.state={
-            input:'5bb610bf043f3f001b6a4c53',
+            input:'5a30ea5375a96c000f012fe0',
             json:[],
             loading:true,
             _notificationSystem: null,
