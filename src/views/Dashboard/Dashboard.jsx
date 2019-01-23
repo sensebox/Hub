@@ -374,6 +374,22 @@ class Dashboard extends Component {
                             title="Sensor to choose"
                             category="Click phenomenon to add to graph"
                             content={
+                                <Grid>
+                                <ul>
+                                     {this.state.selected.map((sensor,index)=>{
+                                         return(
+                                            <li className="sensors" key={index}>
+                                            <Radio
+                                                number={index}
+                                                name={"radio"+index}
+                                                label={sensor}
+                                                checked = {true}
+                                            />
+                                        </li>
+                                         )
+                                     })}
+                                </ul>
+                                <hr></hr>
                                 <ul>
                                 {
                                     this.state.sensors.map((sensor)=>{
@@ -393,7 +409,7 @@ class Dashboard extends Component {
                             })
                             }
                             </ul> 
-                            
+                            </Grid>
                        }/>
                 </Col>
                 <Col md={2}>
