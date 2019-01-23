@@ -16,13 +16,7 @@ class HeaderLinks extends Component {
     }
     return (
       <div>
-        <Nav>
-          <NavItem eventKey={1} href="#">
-          <p className="hidden-lg hidden-md">Name</p>
 
-            <i className="fa fa-dashboard" />
-          </NavItem>
-        </Nav>
         <Nav pullRight>
           <NavItem eventKey={3} href={link2}>
             Go to openSenseMap
