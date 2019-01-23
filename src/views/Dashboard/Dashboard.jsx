@@ -379,11 +379,9 @@ handleStats(sensorid,title){
           <Row>
             <Col md={10} >
             <Card   
-                statsIcon="fa fa-history"
                 id="chartHours"
                 title={this.state.selected[0] +"/" + this.state.selected[1]}
                 category={this.state.range}
-                stats="Updated 1 minute ago"
                 content={
                   <HighchartsReact
                   highcharts={Highcharts}
