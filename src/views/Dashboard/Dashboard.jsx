@@ -94,10 +94,7 @@ class Dashboard extends Component {
 handleStats(sensorid,title,range){
     let url = 'https://api.opensensemap.org/boxes/'+this.props.match.params.id+'/data/'+sensorid;
     if(range){
-     
-        url = url + "?from-date="+this.state.from+"&to-date="+this.state.to
-        console.log(url);
-        
+        url = url + "?from-date="+this.state.from+"&to-date="+this.state.to;
     }
         fetch(url)
     .catch((error)=>{
@@ -115,9 +112,14 @@ handleStats(sensorid,title,range){
     .then((json)=>this.setState((prevState)=>{
         json:prevState.json.push({typ:title,data:json})
     },function(){
-      if(this.state.length===2)this.setState({selected:[this.state.json[0].title,this.state.json[1].title]})
-      if(this.state.json.length === this.state.sensors.length)this.addSeries()
-
+      if(this.state.json.length === this.state.sensors.length){
+        this.addXAxis()
+        this.addSeries(this.state.json[0].typ,true)
+        this.addSeries(this.state.json[1].typ,false)
+        this.setState(
+            {selected:[this.state.json[0].typ,this.state.json[1].typ]}
+            )
+    }
     }))
     .catch(function(error){
         console.log('Error: ',error.message);
@@ -136,63 +138,88 @@ handleStats(sensorid,title,range){
   componentDidCatch(error, info){
     this.setState({ has_error: true });
   }
-
-  addSeries() {
-    // init Variables 
-    let chart = this.myRef.current.chart
-    console.log(chart)
-    const data = this.state.json;
-    var arr = [];
+  /**
+   * Returns an array that is derived from the senseBox data
+   * this array holds all dates and can be used to 
+   * create an xAxis for HighCharts
+   */
+  createXAxis(){
     var dateArray = []
-    for(let i = 0 ;i<data.length;i++){
-        var newArr = {typ:data[i].typ,data:[]}
-        for(var u = data[i].data.length-1;u>=0;u--){
-            newArr.data.push(parseFloat(data[i].data[u].value))
-        }
-        arr.push(newArr)
-    }
-    chart.setTitle({
-      text:this.state.senseBox.name
+    this.state.json[0].data.map((measurement)=>{
+        dateArray.push(moment(measurement.createdAt).format("DD.MM.YYYY HH:mm"))
     })
-    // Create xAxis with moment
-    data[0].data.map((measurement)=>{
-      
-      dateArray.push(moment(measurement.createdAt).format("DD.MM.YYYY HH:mm"))
-    })
-    arr.push(dateArray.reverse())
-    // Add xAxis
+    dateArray = dateArray.reverse()
+    return dateArray
+  }
+
+  /**
+   * Function that adds the xAxis after it was previously created
+   */
+  addXAxis(){
+    var xAxis = this.createXAxis();
+    let chart = this.myRef.current.chart
     
-    chart.xAxis[0].remove()
+    chart.setTitle({
+        text:this.state.senseBox.name
+      })
+    chart.xAxis[0].remove(); // make sure that only one xAxis exists at a time
     chart.addAxis({
         tickInterval:280,
-        categories:arr[arr.length-1]
+        categories:xAxis
     },true)
-    // Loop first 2 entries and display in graph 
-    for(let i=0;i<2;i++){
-        var opposite = false;
-        if(i === 1 ) opposite = true
-        chart.addAxis({
-            id:data[i].typ+"axis",
-            title:{
-                text:data[i].typ
-            },
-            opposite:opposite
-        })
-        chart.addSeries({
-            name:data[i].typ,
-            type:"spline",
-            data:arr[i].data,
-            yAxis:data[i].typ+"axis"
-        })
-    }
+    this.setState({
+        range:"Von "+xAxis[0]+" bis "+xAxis[xAxis.length-1],
+    })
+  }
+  /**
+   * Returns an array that is derived from the senseBox data
+   * this array holds all an object which contains all values 
+   * from all sensors in a HighCharts compatible way
+   * 
+   * {typ:"Luftfeuchtigkeit",data:[2,3,4,...]}
+   */
+  createSeries(){
+      var arr = []
+      for(let i=0;i<this.state.json.length;i++){
+          var newArr = {typ:this.state.json[i].typ,data:[]}
+          for(let u=this.state.json[i].data.length-1;u>=0;u--){
+              newArr.data.push(parseFloat(this.state.json[i].data[u].value))
+          }
+          arr.push(newArr)
+      }
+      return arr;
+  }
+  
+  /**
+   * Adds a given series to the visualization with the right axis
+   * @param {*} title 
+   * @param {*} opposite 
+   */
+  addSeries(title,opposite) {
+    // init Variables 
+    let chart = this.myRef.current.chart
+    const data = this.state.json;
+    var arr = this.createSeries();
+    var toAdd = arr.filter((sensor)=>{
+        return sensor.typ === title
+    })
+    chart.addAxis({
+        id:title+"axis",
+        title:{
+            text:title
+        },
+        opposite:opposite
+    })
+    chart.addSeries({
+        name:title,
+        typ:"spline",
+        data:toAdd[0].data,
+        yAxis:title+"axis"
+    })
     this.setState({
         data_new:arr,
-        selected:[data[0].typ,data[1].typ],
-        range:"Von "+dateArray[0]+" bis "+dateArray[dateArray.length-1],
         loaded:false
     })
-    chart.axes[1].remove()
-    
   }
 
   onChangeFrom(e){
@@ -210,6 +237,13 @@ handleStats(sensorid,title,range){
       })
   }
   submitStats(){
+    this.setState({
+        json:[]
+    },function(){
+      this.state.sensors.map((sensor)=>{
+        this.handleStats(sensor._id,sensor.title,true)
+    })  
+    })
   }
   handleRadio(e){   
     let chart = this.myRef.current.chart
