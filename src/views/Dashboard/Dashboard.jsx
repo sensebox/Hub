@@ -15,10 +15,19 @@ import ErrorPage from 'components/ErrorPage/ErrorPage'
 import DatePicker from 'react-datepicker'
 import {FormInputs} from 'components/FormInputs/FormInputs.jsx'
 import { DateRangePicker, SingleDatePicker, DayPickerRangeController } from 'react-dates';
+
 const options = {
   title: {
     text: ''
-  }
+  },
+  loading: {
+    labelStyle : {
+        fontStyle:'roboto'
+    },
+    hideDuration: 1000,
+    showDuration: 1000
+},
+
 }
 
 
@@ -40,7 +49,8 @@ class Dashboard extends Component {
       json:[],
       panel1:"glyphicon glyphicon-chevron-up",
       from:"",
-      to:""
+      to:"",
+      loading_stats:true,
 
 
     }
@@ -125,8 +135,10 @@ handleStats2(sensorid,title,range){
             this.addSeries(this.state.json[0].typ,true)
             this.addSeries(this.state.json[1].typ,false)
             this.setState(
-                {selected:[this.state.json[0].typ,this.state.json[1].typ]}
+                {selected:[this.state.json[0].typ,this.state.json[1].typ],
+                    loading_stats:false}
                 )
+            this.myRef.current.chart.hideLoading()
         }
     })
     console.log(this.state.json)
@@ -159,7 +171,8 @@ handleStats(sensorid,title,range){
         this.addSeries(this.state.json[0].typ,true)
         this.addSeries(this.state.json[1].typ,false)
         this.setState(
-            {selected:[this.state.json[0].typ,this.state.json[1].typ]}
+            {selected:[this.state.json[0].typ,this.state.json[1].typ],
+            loading_stats:false}
             )
     }
     }))
@@ -200,7 +213,6 @@ handleStats(sensorid,title,range){
   addXAxis(){
     var xAxis = this.createXAxis();
     let chart = this.myRef.current.chart
-    
     chart.setTitle({
         text:this.state.senseBox.name
       })
@@ -284,6 +296,9 @@ handleStats(sensorid,title,range){
       })
   }
   submitStats(){
+    let chart = this.myRef.current.chart
+    chart.showLoading();
+
     this.removeSeries(this.state.selected[0])
     this.removeSeries(this.state.selected[1])
     this.setState({
@@ -293,6 +308,7 @@ handleStats(sensorid,title,range){
         this.handleStats2(sensor._id,sensor.title,true)
     })  
     })
+    
   }
   handleRadio(e){   
     const phenomenon =e.target.dataset.title
@@ -361,9 +377,7 @@ handleStats(sensorid,title,range){
                   highcharts={Highcharts}
                   options={options}
                   ref={this.myRef}
-                /> 
-                }
-                />
+                /> }/>
             </Col>
             <Col md={2}>
                         <Card 
