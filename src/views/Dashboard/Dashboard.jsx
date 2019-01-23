@@ -25,6 +25,9 @@ const options = {
     },
     hideDuration: 1000,
     showDuration: 1000
+    },
+    chart:{
+        height:650
     }
 }
 
