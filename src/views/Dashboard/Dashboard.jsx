@@ -101,8 +101,9 @@ class Dashboard extends Component {
     })
 }
 handleStats2(sensorid,title,range){
+
     var url = "https://api.opensensemap.org/statistics/descriptive?boxId="+this.props.match.params.id+"&phenomenon="+
-    title+"&from-date="+this.state.from+"&to-date="+this.state.to+"&operation=arithmeticMean"+"&window=300000&format=json";
+    title+"&from-date="+this.state.from+"T00:00:00.032Z&to-date="+this.state.to+"T00:00:00.032Z&operation=arithmeticMean"+"&window=300000&format=json";
     fetch(url)
     .catch((error)=>{
         console.warn(error)
@@ -144,13 +145,10 @@ handleStats2(sensorid,title,range){
     console.log(this.state.json)
     
 }
-handleStats(sensorid,title,range){
+handleStats(sensorid,title){
     let url = 'https://api.opensensemap.org/boxes/'+this.props.match.params.id+'/data/'+sensorid;
-    if(range){
-        url = "https://api.opensensemap.org/statistics/descriptive?boxId="+this.props.match.params.id+"&phenomenon="+
-        title+"&from-date="+this.state.from+"&to-date="+this.state.to+"&operation=arithmeticMean"+"&window=300000";
-    }
-        fetch(url)
+
+    fetch(url)
     .catch((error)=>{
         console.warn(error)
         return null
@@ -298,7 +296,7 @@ handleStats(sensorid,title,range){
     
   }
   onChangeFrom(e){
-    var newDate = e.target.value + "T00:00:00.032Z";
+    var newDate = e.target.value ;
       this.setState({
           from:newDate 
       })
@@ -379,8 +377,8 @@ handleStats(sensorid,title,range){
           </Col>
           </Row>
           <Row>
-            <Col md={10}>
-            <Card
+            <Col md={10} >
+            <Card   
                 statsIcon="fa fa-history"
                 id="chartHours"
                 title={this.state.selected[0] +"/" + this.state.selected[1]}
