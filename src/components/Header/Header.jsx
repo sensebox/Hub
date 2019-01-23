@@ -10,7 +10,7 @@ class Header extends Component {
     super(props);
     this.mobileSidebarToggle = this.mobileSidebarToggle.bind(this);
     this.state = {
-      sidebarExists: false
+      sidebarExists: false,
     };
   }
   mobileSidebarToggle(e) {
@@ -28,6 +28,12 @@ class Header extends Component {
       document.documentElement.classList.toggle("nav-open");
     };
     document.body.appendChild(node);
+  }
+  componentWillReceiveProps(){
+    var senseboxid = this.props.location.pathname.substring(10,this.props.location.pathname.length)
+    this.setState({
+      senseboxid
+    })
   }
   getBrand() {
     var name;
@@ -64,7 +70,7 @@ class Header extends Component {
           <Navbar.Toggle onClick={this.mobileSidebarToggle} />
         </Navbar.Header>
         <Navbar.Collapse>
-          <HeaderLinks />
+          <HeaderLinks id={this.state.senseboxid} />
         </Navbar.Collapse>
       </Navbar>
     );

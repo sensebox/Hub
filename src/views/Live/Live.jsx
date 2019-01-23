@@ -38,7 +38,6 @@ var options = {
   };
 
 
-var time = 0 
 var client;
 /*
     The live page should show live measurements by a sensor
@@ -60,8 +59,8 @@ class Live extends Component {
             lastMeasurement:null,
             timestep:0,
             ip:"10.0.1.2",
-            topics:["temperatur","humidity"],
-            username:"",
+            topics:[],
+            key:"",
             topic:"",
             extreme1low:0,
             extreme1high:0,
@@ -79,7 +78,7 @@ class Live extends Component {
         this.clearGraph = this.clearGraph.bind(this);
         this.handleIPInput = this.handleIPInput.bind(this);
         this.handleTopicInput = this.handleTopicInput.bind(this);
-        this.handleUsernameInput = this.handleUsernameInput.bind(this);
+        this.handleKeyInput = this.handleKeyInput.bind(this);
         this.setExtreme1 = this.setExtreme1.bind(this);
         this.setExtreme2 = this.setExtreme2.bind(this);
         this.handleExtreme1low = this.handleExtreme1low.bind(this);
@@ -104,41 +103,59 @@ class Live extends Component {
 
     handleMQTT(position){
         // give notification
-        var level = 'info'; // 'success', 'warning', 'error' or 'info'
-        this.state._notificationSystem.addNotification({
-            title: (<span data-notify="icon" className="pe-7s-video"></span>),
-            message: (
-                <div>
-                    Now listening to the MQTT-Server
-                </div>
-            ),
-            level: level,
-            position: position,
-            autoDismiss: 5,
-        });
-        let chart = this.myRef.current.chart
-        if(!chart.get(this.state.topics[0]))
-        {this.state.topics.map((topic,index)=>{
-            
-            chart.addAxis({
-                id:topic+"axis",
-                title:{
-                    text:topic
-                },
-                opposite:index
-                })
-            chart.addSeries({
-                name:topic,
-                id:topic,
-                type:"spline",
-                data:[],
-                yAxis:topic+"axis",
-                marker:{enabled:false}
-            })
-        })}
-        this.setState({listening:true})
-        this.handleBroker();
+        var level;
+        if(!this.state.topics || !this.state.key || !this.state.ip){
+             level = "error";
+            this.state._notificationSystem.addNotification({
+                title: (<span data-notify="icon" className="pe-7s-video"></span>),
+                message: (
+                    <div>
+                        Please give an IP ,a topic and a key !
+                    </div>
+                ),
+                level: level,
+                position: position,
+                autoDismiss: 5,
+            });
+        }
+        else
+        {
 
+            level = 'info'; // 'success', 'warning', 'error' or 'info'
+            this.state._notificationSystem.addNotification({
+                title: (<span data-notify="icon" className="pe-7s-video"></span>),
+                message: (
+                    <div>
+                        Now listening to the MQTT-Server
+                    </div>
+                ),
+                level: level,
+                position: position,
+                autoDismiss: 5,
+            });
+            let chart = this.myRef.current.chart
+            if(!chart.get(this.state.topics[0]))
+            {this.state.topics.map((topic,index)=>{
+                
+                chart.addAxis({
+                    id:topic+"axis",
+                    title:{
+                        text:topic
+                    },
+                    opposite:index
+                    })
+                chart.addSeries({
+                    name:topic,
+                    id:topic,
+                    type:"spline",
+                    data:[],
+                    yAxis:topic+"axis",
+                    marker:{enabled:false}
+                })
+            })}
+            this.setState({listening:true})
+            this.handleBroker();
+        }
     }
     stopInterval(position){
         var level = 'warning'; // 'success', 'warning', 'error' or 'info'
@@ -149,6 +166,7 @@ class Live extends Component {
         
         if(axis1) axis1 = axis1.getExtremes()
         if(axis2) axis2 = axis2.getExtremes()
+            else axis2 = 
         this.state._notificationSystem.addNotification({
             title: (<span data-notify="icon" className="pe-7s-video"></span>),
             message: (
@@ -181,11 +199,10 @@ class Live extends Component {
         }
         chart.redraw();
     }
-     handleBroker(){      
+     handleBroker(){ 
         client = mqtt.connect('mqtt://'+this.state.ip + ':1884')
         var that = this;
         let chart = this.myRef.current.chart
-
         client.on('connect', function () {
             // On connection subscribe to the topic
             client.subscribe(that.state.topics, function (err,value) {
@@ -204,10 +221,15 @@ class Live extends Component {
     }
     handleTopicInput(e){
         var input = e.target.value
-        this.setState({ topics: input.split(','),topic:input })
+        var topics = input.split(',');
+        var topics_new =[];
+        topics.map((topic)=>{
+            topics_new.push(this.state.key + "/"+topic) 
+        })
+        this.setState({ topics: topics,topic:input })
     }
-    handleUsernameInput(e){
-        this.setState({ username: e.target.value })
+    handleKeyInput(e){
+        this.setState({ key: e.target.value })
     }
     handleExtreme1low(e){
         this.setState({extreme1low:e.target.value})
@@ -243,13 +265,13 @@ class Live extends Component {
     }
     handlePanel1(){
         var newClass = "" 
-        if(this.state.panel1=="glyphicon glyphicon-chevron-up") newClass = "glyphicon glyphicon-chevron-down"
+        if(this.state.panel1==="glyphicon glyphicon-chevron-up") newClass = "glyphicon glyphicon-chevron-down"
         else newClass = "glyphicon glyphicon-chevron-up"
         this.setState({panel1:newClass})
     }
     handlePanel2(){
         var newClass = "" 
-        if(this.state.panel2=="glyphicon glyphicon-chevron-up") newClass = "glyphicon glyphicon-chevron-down"
+        if(this.state.panel2==="glyphicon glyphicon-chevron-up") newClass = "glyphicon glyphicon-chevron-down"
         else newClass = "glyphicon glyphicon-chevron-up"
         this.setState({panel2:newClass})
     }
@@ -367,16 +389,17 @@ class Live extends Component {
                                                     />
                                                 <FormControl
                                                     type="text"
+                                                    value={this.state.key}
+                                                    placeholder="Enter topic key"
+                                                    onChange={this.handleKeyInput}
+                                                    />   
+                                                <FormControl
+                                                    type="text"
                                                     value={this.state.topic}
                                                     placeholder="Enter Topic"
                                                     onChange={this.handleTopicInput}
                                                     />
-                                                {/* <FormControl
-                                                    type="text"
-                                                    value={this.state.username}
-                                                    placeholder="Enter username"
-                                                    onChange={this.handleUsernameInput}
-                                                    />
+                                                {/*
                                                 <FormControl
                                                     type="password"
                                                     value={this.state.password}
