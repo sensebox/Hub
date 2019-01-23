@@ -34,7 +34,7 @@ class Dashboard extends Component {
       graph_data:[],
       hasError:false,
       selectedSensors:[],
-      toggle:false,
+      toggle:true,
       loading:true,
       loaded:true,
       json:[],
@@ -90,11 +90,53 @@ class Dashboard extends Component {
         console.log('Error: ',error.message);
     })
 }
-
+handleStats2(sensorid,title,range){
+    var url = "https://api.opensensemap.org/statistics/descriptive?boxId="+this.props.match.params.id+"&phenomenon="+
+    title+"&from-date="+this.state.from+"&to-date="+this.state.to+"&operation=arithmeticMean"+"&window=300000&format=json";
+    fetch(url)
+    .catch((error)=>{
+        console.warn(error)
+        return null
+    })
+    .then((response)=>{
+        if(response.ok)
+            return response.json();
+        this.setState({
+            hasError:"no measurement"
+        })
+        throw new Error('Box has no measurements to fetch')
+    })
+    .then((json)=>{
+        var dataArray = []
+        for(var measurement in json[0]){
+            if(measurement === "sensorId") continue 
+            dataArray.push({value:json[0][measurement],createdAt:measurement})
+        }
+        dataArray = dataArray.reverse();
+        let toPush = this.state.json;
+        toPush.push({typ:title,data:dataArray})
+        this.setState({
+            json:toPush
+        })
+    })
+    .then(()=>{
+        if(this.state.json.length === this.state.sensors.length){
+            this.addXAxis()
+            this.addSeries(this.state.json[0].typ,true)
+            this.addSeries(this.state.json[1].typ,false)
+            this.setState(
+                {selected:[this.state.json[0].typ,this.state.json[1].typ]}
+                )
+        }
+    })
+    console.log(this.state.json)
+    
+}
 handleStats(sensorid,title,range){
     let url = 'https://api.opensensemap.org/boxes/'+this.props.match.params.id+'/data/'+sensorid;
     if(range){
-        url = url + "?from-date="+this.state.from+"&to-date="+this.state.to;
+        url = "https://api.opensensemap.org/statistics/descriptive?boxId="+this.props.match.params.id+"&phenomenon="+
+        title+"&from-date="+this.state.from+"&to-date="+this.state.to+"&operation=arithmeticMean"+"&window=300000";
     }
         fetch(url)
     .catch((error)=>{
@@ -203,6 +245,7 @@ handleStats(sensorid,title,range){
     var toAdd = arr.filter((sensor)=>{
         return sensor.typ === title
     })
+
     chart.addAxis({
         id:title+"axis",
         title:{
@@ -212,6 +255,7 @@ handleStats(sensorid,title,range){
     })
     chart.addSeries({
         name:title,
+        id:title,
         typ:"spline",
         data:toAdd[0].data,
         yAxis:title+"axis"
@@ -221,68 +265,51 @@ handleStats(sensorid,title,range){
         loaded:false
     })
   }
-
+  removeSeries(title){
+      let chart = this.myRef.current.chart
+      chart.get(title).remove();
+      chart.get(title+"axis").remove();
+    
+  }
   onChangeFrom(e){
     var newDate = e.target.value + "T00:00:00.032Z";
-    console.log(newDate);
       this.setState({
           from:newDate 
       })
   }
   onChangeTo(e){
       var newDate = e.target.value + "T00:00:00.032Z";
-      console.log(newDate)
       this.setState({
           to:newDate
       })
   }
   submitStats(){
+    this.removeSeries(this.state.selected[0])
+    this.removeSeries(this.state.selected[1])
     this.setState({
         json:[]
     },function(){
       this.state.sensors.map((sensor)=>{
-        this.handleStats(sensor._id,sensor.title,true)
+        this.handleStats2(sensor._id,sensor.title,true)
     })  
     })
   }
   handleRadio(e){   
-    let chart = this.myRef.current.chart
     const phenomenon =e.target.dataset.title
-    var newPheno = this.state.data_new.filter((sensor)=>{
-        return(sensor.typ === phenomenon)
-    })
+    // Abort 
     if(this.state.selected[0] === phenomenon || this.state.selected[1] === phenomenon) return null
     // Remove previous ( first ) series 
-    var toremoveaxis = chart.yAxis.filter((axis)=>{
-        return(axis.axisTitle.textStr === this.state.selected[1])
-    })
-    chart.series[0].remove(false)
-    chart.get(this.state.selected[0]+"axis").remove()
-    var newSeries = {
-        name:newPheno[0].typ,
-        type:'spline',
-        data:newPheno[0].data,
-        yAxis: newPheno[0].typ+"axis"
-    }
-    var newAxis = {
-        id:newPheno[0].typ+"axis",
-        title:{
-            text:newPheno[0].typ
-        },
-        opposite:this.state.toggle
-    }
-
-    // Add Series and new axis
-    chart.addAxis(newAxis)
-    chart.addSeries(newSeries)
+    this.removeSeries(this.state.selected[0]);
+    this.addSeries(phenomenon,this.state.toggle);
 
     var selected = this.state.selected
     var newSelected = [selected[1],phenomenon]
     this.setState({
         selected:newSelected,
         toggle:!this.state.toggle,
-    })
+        })
     }
+
     handlePanel1(){
       var newClass = "" 
       if(this.state.panel1==="glyphicon glyphicon-chevron-up") newClass = "glyphicon glyphicon-chevron-down"
