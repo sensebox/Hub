@@ -9,16 +9,16 @@ class Footer extends Component {
           <nav className="pull-left">
             <ul>
               <li>
-                <a href="#pablo">senseBox:Website</a>
+                <a href="https://www.sensebox.de">senseBox:Website</a>
               </li>
               <li>
-                <a href="#pablo">senseBox:Books</a>
+                <a href="https://sensebox.github.io/books-v2/edu/de/">senseBox:Books</a>
               </li>
               <li>
-                <a href="#pablo">senseBox:Twitter</a>
+                <a href="https://twitter.com/sensebox_de">senseBox:Twitter</a>
               </li>
               <li>
-                <a href="#pablo">senseBox:Kontakt</a>
+                <a href="https://www.facebook.com/sensebox.de">senseBox:Kontakt</a>
               </li>
             </ul>
           </nav>
