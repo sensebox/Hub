@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Row, Col } from "react-bootstrap";
+import TimeAgo from 'react-timeago'
 
 export class StatsCard extends Component {
   render() {
@@ -22,7 +23,7 @@ export class StatsCard extends Component {
           <div className="footer">
             <hr />
             <div className="stats">
-              {this.props.statsIcon} {this.props.statsIconText}
+              {this.props.statsIcon}<TimeAgo date={this.props.statsIconText}/>
             </div>
           </div>
         </div>

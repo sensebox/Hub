@@ -1,7 +1,9 @@
 # senseBox Hub 
  This repository contains the code of the Hub that is designed to hold several apps that were built in the senseBox project. To get more information about openSenseMap and senseBox visit the before mentioned links or have a look at this [video](https://www.youtube.com/watch?v=I8ZeT6hzjKQ) or read the [openSenseMap](https://osem.books.sensebox.de/) chapter in our [books](https://books.sensebox.de/).
 
+The Hub can be accessed via [this link](https://dashboardsensebox.netlify.com/#/)
 ![Dashboard](screen.png)
+
 
 ## Getting started 
 
@@ -14,7 +16,7 @@
  2. Install Dependencies
  `cd Hub/ && npm install`
  3. Run the app locally in development mode 
- `npm run`
+ `npm start`
 
  The `src`-folder contains all files for further development.
 `views` contains the components that will get rendered. 

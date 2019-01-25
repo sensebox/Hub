@@ -10,26 +10,56 @@
     margin: 0;
 }
 
-.ct-line{
-stroke:#4EAF47 !important;
-
-
-}
-
-.ct-series-a .ct-point {
-    /* Colour of your points */
-    stroke: #4EAF47 !important;
-  }
-.custom_tooltip{
-    background-color:#4EAF47 !important;
-    border-top-color:#4EAF47 !important;
-    color:white !important;
-}
-
-.chartist-tooltip:before{
-    border-top-color:#4EAF47 !important;
-
+.des{
+    background-color:white
 }
 .eric_button{
     margin:5px !important;
+}
+.spinner {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner .des {
+    display:none
+}
+
+.sensors {
+    list-style-type: none;
+}
+
+.clickable{
+    cursor: pointer;   
+}
+
+.panel-heading span {
+	margin-top: -20px;
+	font-size: 15px;
+}
+.smi{
+    padding:0px !important
+}
+.des{
+    margin-top:10px !important;
+    margin-left:0px !important;
+    margin-right:0px !important
+}
+
+.collaps-title{
+    font-weight: 300;
+    color:#333333;
+    font-size:22px !important;
+}
+.noshow {
+    display: none
 }
