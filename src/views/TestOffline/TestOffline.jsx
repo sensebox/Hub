@@ -1,163 +1,181 @@
 import React, { Component } from "react";
-import { Grid, Row, Col } from "react-bootstrap";
+import { Grid, Row, Col ,Panel} from "react-bootstrap";
 import 'assets/skins/all.css'
-import { Card } from "components/Card/Card.jsx";
-import { StatsCard } from "components/StatsCard/StatsCard.jsx";
-import 'assets/sass/custom.css'
-import {Redirect} from 'react-router-dom'
-import Radio from 'components/CustomRadio/CustomRadio'
-import data from 'variables/data.jsx'
-import * as senseboxdata from "variables/sensebox.json"
+import LiveMeasurements from 'components/Dashboard/LiveMeasurements.jsx'
+import StatisticsCard from 'components/Dashboard/StatisticsCard.jsx'
+
+import Radios from 'components/Dashboard/Radios.jsx'
+import Dates from 'components/Dashboard/Dates.jsx'
+
 var moment = require('moment')
 
 class TestOffline extends Component {
     constructor(props){
-        super()
-        this.state={
-            input:'5a30ea5375a96c000f012fe0',
-            json:data[0],
+        super(props);
+        this.state = {
+            loading:true,
+            loading_stats:true,
             data:[],
-            sensebox:senseboxdata,
-            loading:false,
-            selected:["Temperatur","Luftdruck"]
+            selected:[],
+            reload:false,
         }
-        this.handleValues=this.handleValues.bind(this)
-        this.handleRadio = this.handleRadio.bind(this)
-        this.handleRadio2 = this.handleRadio2.bind(this)
-
+        this.updateSelection = this.updateSelection.bind(this);
+        this.onChangeFrom = this.onChangeFrom.bind(this);
+        this.onChangeTo = this.onChangeTo.bind(this);
+        this.submitStats = this.submitStats.bind(this);
     }
-    componentDidMount(){
-
-        this.handleValues();
-    }
-
-    handleSubmit(){       
-        this.state.sensors.map((sensor)=>{            
-            this.handleStats(sensor._id,sensor.title);
-        })
-    }
-
-    handleStats(sensorid,title){
-        let url = 'https://api.opensensemap.org/boxes/5a30ea5375a96c000f012fe0/data/'+sensorid;
-        fetch(url)
-        .catch((error)=>{
-            console.warn(error)
-            return null
-        })
-        .then((response)=>response.json())
-        .then((json)=>this.setState((prevState)=>{
-            data:prevState.data.push({typ:title,data:json})
-        })
-       );       
-    }
-    cutArray(steps,oldArr){
-        var arr = [];
-        for(var i=0;i<oldArr.length;i=i+steps){      
-          arr.push(oldArr[i])
-        }
-        return arr;
     
-      }
-    // Functions that processes data 
-    // is to be called after the data got requested
-    handleValues(){
-        // Calling variables to use in the algorithm
-        const data = this.state.json;
-        var arr = [];
-        // Creating labels for the sets 
-        // important: all arrays must be same size or are not allowed to be bigger than the first array => TODO 
-        data[0].data.map((measurement)=>{
-            let label = moment(measurement.createdAt).format("DD.MM.YYYY HH:mm")   ;
-            arr.push({Zeitpunkt:label})
+    componentDidMount(){
+        this.getBox();
+    }
 
-                   })
-        // Pushing all values into one array
-        // arr[0]data["Temperatur"]=22.88
-        for(var i = 0;i<data.length;i++){
-            for(var u = 0;u<data[i].data.length;u++){
-                arr[u][data[i].typ]=parseFloat(data[i].data[u].value);
+    getBox(){
+        let url = 'https://api.opensensemap.org/boxes/5a30ea5375a96c000f012fe0';
+        fetch(url)
+        .then((response)=>{
+            if(response.ok){
+                return response.json()
             }
+            throw new Error(response.message)
+        })
+        .then((json)=>{
+            this.setState({
+                senseBox:json,
+                sensors:json.sensors,
+                loading:false
+            })
+        })
+        .then(()=>{
+            this.state.sensors.map((sensor)=>{
+                this.getStatistics(sensor._id,sensor.title);
+            })
+        })
+        .catch(function(error){
+            console.log('Error: ', error.message)
+        })
+    }
+
+    getStatistics(sensorid,title){
+        let url = "https://api.opensensemap.org/boxes/5a30ea5375a96c000f012fe0/data/"+sensorid
+        fetch(url)
+        .then((response)=>{
+            if(response.ok)
+                return response.json()
+            throw new Error(response.message)
+        })
+        .then((json)=>{
+            this.setState((prevState)=>{
+                data:prevState.data.push({
+                    typ:title,data:json})})
+        })
+        .then(()=>{
+            if(this.state.data.length === this.state.sensors.length){
+                console.log(this.state.data)
+                this.setState({
+                    selected:[this.state.data[0].typ,this.state.data[1].typ],
+                    loading_stats:false,
+                    start:moment(this.state.data[0].data[this.state.data[0].data.length-1].createdAt).format('YYYY-MM-DD'),
+                    end:moment(this.state.data[0].data[0].createdAt).format('YYYY-MM-DD'),
+
+                })
+            }}
+        )
+        .catch((function(error){
+            console.log('Error', error.message)
+        }))
+    }
+
+    updateSelection(e){
+        const checked = e.target.checked
+        const id = e.target.id
+        let newSelected = this.state.selected;
+       if(!checked){
+            newSelected = newSelected.filter((sensor)=>{
+                return sensor !=id
+            })
         }
-        arr = arr.reverse();
-        // Set state to the new calculated array 
+        else{
+            newSelected.push(id)   
+        }
+        this.setState({selected:newSelected})
+    
+    }
+
+    onChangeFrom(e){
+        var newDate = e.target.value ;
         this.setState({
-            data:arr
+            from:newDate 
         })
     }
-    // handlers for the 2 radio button groups
-    handleRadio(e){
-        const id = e.target.dataset.title
-        const selected = this.state.selected
+    onChangeTo(e){
+        var newDate = e.target.value;
         this.setState({
-            selected:[id,selected[1]]
+            to:newDate
         })
     }
-    handleRadio2(e){        
-        const id = e.target.dataset.title
-        const selected = this.state.selected
+    submitStats(){
+        console.log("des");
+        
         this.setState({
-            selected:[selected[0],id]
+            data:[]
+        },function(){
+            this.state.sensors.map((sensor)=>{
+                let url ="https://api.opensensemap.org/statistics/descriptive?boxId=5a30ea5375a96c000f012fe0&phenomenon="+
+            sensor.title+"&from-date="+this.state.start+"T00:00:00.032Z&to-date="+this.state.end+"T23:59:00.032Z&operation=arithmeticMean"+
+            "&window=300000&format=json" 
+            fetch(url)
+            .then((response)=>{
+                if(response.ok)
+                    return response.json()
+                this.setState({
+                    hasError:"no measurement"
+                })
+                throw new Error('Box has no measurements to fetch')
+            })
+            .then((json)=>{
+                var dataArray = []
+                for(var measurement in json[0]){
+                    if(measurement === "sensorId") continue 
+                    dataArray.push({value:json[0][measurement],createdAt:measurement})
+                }
+                dataArray = dataArray.reverse();
+                let toPush = this.state.data;
+                toPush.push({typ:sensor.title,data:dataArray})
+                this.setState({
+                    data:toPush,
+                    reload:true
+                })
+            })
+            })
         })
+
+        
     }
     render(){
-        if(this.state.loading){
-            return(
-                <p>Ja des</p>
-            )        }
-        if(!this.state.loading){      
-        return(
-            <Grid>
+        return(            
+            <Grid fluid>
                 <Row>
-                    <button onClick={()=>this.handleValues()}>Des</button>
-                    <Col lg={3} md={6}>
-                    <ul>
-                        {this.state.sensebox.sensors.map((sensor)=>{
-                            return(
-                        <li key={sensor._id}>
-                        <Radio
-                                label={sensor.title}
-                                key={sensor._id}
-                                name="sensoren1"
-                                onChange={this.handleRadio}
-                                number={sensor.title} 
-                                data-title={sensor.title}
-                                />
-                      </li>
-                        )})}
-                    </ul>
+                    <Col md={12}>
+                        <LiveMeasurements loading = {this.state.loading} sensors = {this.state.sensors}/>
                     </Col>
-                    <Col lg={3} md={6}>
-                    <ul>
-                        {this.state.sensebox.sensors.map((sensor)=>{
-                            return(
-                        <li key={sensor._id}>
-                        <Radio
-                                label={sensor.title}
-                                key={sensor._id}
-                                name="sensoren2"
-                                onChange={this.handleRadio2}
-                                number={sensor.title+"2"}
-                                data-title = {sensor.title}
-                            />
-                      </li>
-                        )})}
-                    </ul>
-                    </Col>
-                    
                 </Row>
                 <Row>
-
+                    <Col md={10}>
+                    {this.state.loading_stats ? <div className="spinner"/>
+                                              : <StatisticsCard reload={this.state.reload} selected={this.state.selected} from = {this.state.from} to = {this.state.to} data = {this.state.data}/>
+                                            }
+                    </Col>
+                    <Col md={2}>
+                    {this.state.loading_stats ? <div className="spinner"/>
+                    : <Radios selected={this.state.selected} updateSelection={this.updateSelection} sensors = {this.state.sensors}/>
+                    }
+                    </Col>
+                    <Col md={2}>
+                        <Dates submitStats={this.submitStats} onChangeFrom={this.onChangeFrom} onChangeTo={this.onChangeTo} start={this.state.start} end={this.state.end}/>
+                    </Col>
                 </Row>
             </Grid>
         )
-    }else{
-        return(
-            <Grid>
-                <Row>Warte</Row>
-            </Grid>
-        )
-    }
-
     }
 }
 

@@ -323,8 +323,7 @@ class Dashboard extends Component {
     removeSeries(title){
         let chart = this.myRef.current.chart
         chart.get(title).remove();
-        chart.get(title+"axis").remove();
-        
+        chart.get(title+"axis").remove(); 
     }
  /*-------------------Start render()------------------*/
 

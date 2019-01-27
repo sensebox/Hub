@@ -41,11 +41,11 @@ const dashboardRoutes = [
     shown:false
   }, 
   {
-    path: "/testfloffline",
+    path: "/testoffline",
     name: "Test Offline",
     icon: "pe-7s-graph",
     component: TestOffline,
-    shown:false
+    shown:true
   }, 
   {
     path: "/live",
