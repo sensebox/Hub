@@ -1,9 +1,10 @@
-import React, { Component } from "react";
+import React, { Component,  forwardRef, useRef, useImperativeMethods } from "react";
 import { Grid, Row, Col ,Panel} from "react-bootstrap";
 import { Card } from "components/Card/Card.jsx";
 
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
+
 
 var moment = require('moment')
 // Options variable that is needed for Highcharts
@@ -40,6 +41,8 @@ class StatisticsCard extends Component {
         this.checkForNewSeries();
         if(this.props.reload){this.reloadGraph()}
     }
+    
+
     checkForNewSeries(){
         let chart = this.myRef.current.chart
         let activeSeries = [];
@@ -149,14 +152,14 @@ class StatisticsCard extends Component {
     }
     reloadGraph(){
         let chart = this.myRef.current.chart
-        this.addXAxis(this.props.data)
         for(let i=0;i<this.props.selected.length;i++){
             this.removeSeries(this.props.selected[i]);
         }
+        this.addXAxis(this.props.data)
         for(let i=0;i<this.props.selected.length;i++){
             this.addSeries(this.props.selected[i],this.state.opposite)
         }
-
+        chart.hideLoading();
 
     }
     startInitial(){

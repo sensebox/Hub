@@ -45,7 +45,7 @@ const dashboardRoutes = [
     name: "Test Offline",
     icon: "pe-7s-graph",
     component: TestOffline,
-    shown:true
+    shown:false
   }, 
   {
     path: "/live",

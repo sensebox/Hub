@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, forwardRef, useRef, useImperativeMethods } from "react";
 import { Grid, Row, Col ,Panel} from "react-bootstrap";
 import 'assets/skins/all.css'
 import LiveMeasurements from 'components/Dashboard/LiveMeasurements.jsx'
@@ -74,8 +74,8 @@ class TestOffline extends Component {
                 this.setState({
                     selected:[this.state.data[0].typ,this.state.data[1].typ],
                     loading_stats:false,
-                    start:moment(this.state.data[0].data[this.state.data[0].data.length-1].createdAt).format('YYYY-MM-DD'),
-                    end:moment(this.state.data[0].data[0].createdAt).format('YYYY-MM-DD'),
+                    from:moment(this.state.data[0].data[this.state.data[0].data.length-1].createdAt).format('YYYY-MM-DD'),
+                    to:moment(this.state.data[0].data[0].createdAt).format('YYYY-MM-DD'),
 
                 })
             }}
@@ -114,14 +114,13 @@ class TestOffline extends Component {
         })
     }
     submitStats(){
-        console.log("des");
-        
+        this.refs.Stats.myRef.current.chart.showLoading();
         this.setState({
             data:[]
         },function(){
             this.state.sensors.map((sensor)=>{
                 let url ="https://api.opensensemap.org/statistics/descriptive?boxId=5a30ea5375a96c000f012fe0&phenomenon="+
-            sensor.title+"&from-date="+this.state.start+"T00:00:00.032Z&to-date="+this.state.end+"T23:59:00.032Z&operation=arithmeticMean"+
+            sensor.title+"&from-date="+this.state.from+"T00:00:00.032Z&to-date="+this.state.to+"T23:59:00.032Z&operation=arithmeticMean"+
             "&window=300000&format=json" 
             fetch(url)
             .then((response)=>{
@@ -143,7 +142,9 @@ class TestOffline extends Component {
                 toPush.push({typ:sensor.title,data:dataArray})
                 this.setState({
                     data:toPush,
-                    reload:true
+                },function(){
+                    if(this.state.sensors.length === this.state.data.length)
+                        this.refs.Stats.reloadGraph();
                 })
             })
             })
@@ -162,7 +163,7 @@ class TestOffline extends Component {
                 <Row>
                     <Col md={10}>
                     {this.state.loading_stats ? <div className="spinner"/>
-                                              : <StatisticsCard reload={this.state.reload} selected={this.state.selected} from = {this.state.from} to = {this.state.to} data = {this.state.data}/>
+                                              : <StatisticsCard ref="Stats" reload={this.state.reload} selected={this.state.selected} from = {this.state.from} to = {this.state.to} data = {this.state.data}/>
                                             }
                     </Col>
                     <Col md={2}>
@@ -171,7 +172,7 @@ class TestOffline extends Component {
                     }
                     </Col>
                     <Col md={2}>
-                        <Dates submitStats={this.submitStats} onChangeFrom={this.onChangeFrom} onChangeTo={this.onChangeTo} start={this.state.start} end={this.state.end}/>
+                        <Dates submitStats={this.submitStats} onChangeFrom={this.onChangeFrom} onChangeTo={this.onChangeTo} start={this.state.from} end={this.state.to}/>
                     </Col>
                 </Row>
             </Grid>
