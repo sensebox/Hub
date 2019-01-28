@@ -191,7 +191,6 @@ class StatisticsCard extends Component {
             <Card
                 id="chartHours"
                 title="Statistik"
-                category="Des"
                 content={
                     <HighchartsReact
                     highcharts={Highcharts}

@@ -71,3 +71,25 @@
 .centered_text {
     text-align: center;
 }
+.sensegreen{
+    color:#4EAF47;
+
+}
+.error-card {
+	text-align: center;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05), 0 6px 20px 0 rgba(0, 0, 0, 0.04);
+	border-color: lightgrey;
+	border-width: thin;
+	border-radius: 5px;
+	padding: 20px;
+}
+
+.error {
+    font-size: 8em;
+}
+
+.error_hr{
+    border-style: solid;
+    border-width: 2px;
+    border-color: lightblue
+}
