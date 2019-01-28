@@ -3,6 +3,7 @@ import Collapsible from 'react-collapsible';
 import { StatsCard } from "components/StatsCard/StatsCard.jsx";
 import { Grid, Row, Col ,Panel} from "react-bootstrap";
 
+import ReactLoading from 'react-loading';
 
 class LiveMeasurements extends Component {
     constructor(props){
@@ -17,7 +18,10 @@ class LiveMeasurements extends Component {
     render(){
         if(this.props.loading){
             return(
-                <div className="spinner"></div>
+                <div>
+                <ReactLoading className="centered" type="balls" color="#4EAF47" width={100}/> 
+                <h3 className="centered_text">Fetching Box</h3>
+                </div>
             )
         }
         return(
