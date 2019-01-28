@@ -7,7 +7,7 @@ import StatisticsCard from 'components/Dashboard/StatisticsCard.jsx'
 import Radios from 'components/Dashboard/Radios.jsx'
 import Dates from 'components/Dashboard/Dates.jsx'
 import ReactLoading from 'react-loading';
-
+import ErrorPage from 'components/ErrorPage/ErrorPage.jsx'
 var moment = require('moment')
 
 class Dashboard extends Component {
@@ -37,7 +37,8 @@ class Dashboard extends Component {
             if(response.ok){
                 return response.json()
             }
-            throw new Error(response.message)
+            this.setState({error:true,errorMessage:"False Box id(420)"})
+            throw new Error("False box id")
         })
         .then((json)=>{
             this.setState({
@@ -52,7 +53,9 @@ class Dashboard extends Component {
             })
         })
         .catch(function(error){
-            console.log('Error: ', error.message)
+            //this.setState({error:true})
+
+            console.log('Error: ', error)
         })
     }
 
@@ -82,6 +85,7 @@ class Dashboard extends Component {
             }}
         )
         .catch((function(error){
+            this.setState({error:true,errorMessage:error.message})
             console.log('Error', error.message)
         }))
     }
@@ -154,6 +158,10 @@ class Dashboard extends Component {
         
     }
     render(){
+        if(this.state.error){
+            return(
+                <ErrorPage message={this.state.errorMessage}/>
+                )}
         return(            
             <Grid fluid>
                 <Row>
