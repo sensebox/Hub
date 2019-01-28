@@ -6,6 +6,7 @@ import StatisticsCard from 'components/Dashboard/StatisticsCard.jsx'
 
 import Radios from 'components/Dashboard/Radios.jsx'
 import Dates from 'components/Dashboard/Dates.jsx'
+import ReactLoading from 'react-loading';
 
 var moment = require('moment')
 
@@ -161,19 +162,26 @@ class Dashboard extends Component {
                     </Col>
                 </Row>
                 <Row>
+                    {this.state.loading_stats ? 
+                    <div>
+                    <ReactLoading className="centered" type="balls" color="#4EAF47" width={100}/> 
+                    <h3 className="centered_text">Loading Stats</h3>
+                    </div>
+                    :
+                    <div>
                     <Col md={10}>
-                    {this.state.loading_stats ? <div className="spinner"/>
-                                              : <StatisticsCard ref="Stats" reload={this.state.reload} selected={this.state.selected} from = {this.state.from} to = {this.state.to} data = {this.state.data}/>
-                                            }
+                            <StatisticsCard ref="Stats" reload={this.state.reload} selected={this.state.selected} from = {this.state.from} to = {this.state.to} data = {this.state.data}/>           
                     </Col>
                     <Col md={2}>
-                    {this.state.loading_stats ? <div className="spinner"/>
-                    : <Radios selected={this.state.selected} updateSelection={this.updateSelection} sensors = {this.state.sensors}/>
-                    }
+                     <Radios selected={this.state.selected} updateSelection={this.updateSelection} sensors = {this.state.sensors}/>
+                    
                     </Col>
                     <Col md={2}>
                         <Dates submitStats={this.submitStats} onChangeFrom={this.onChangeFrom} onChangeTo={this.onChangeTo} start={this.state.from} end={this.state.to}/>
                     </Col>
+                    </div>
+                }
+                    
                 </Row>
             </Grid>
         )
