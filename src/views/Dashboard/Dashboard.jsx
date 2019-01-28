@@ -185,7 +185,7 @@ class Dashboard extends Component {
                     
                     </Col>
                     <Col md={2}>
-                        <Dates submitStats={this.submitStats} onChangeFrom={this.onChangeFrom} onChangeTo={this.onChangeTo} start={this.state.from} end={this.state.to}/>
+                        <Dates submitStats={this.submitStats} onChangeFrom={this.onChangeFrom} onChangeTo={this.onChangeTo} from={this.state.from} to={this.state.to}/>
                     </Col>
                     </div>
                 }

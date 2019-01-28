@@ -27,18 +27,18 @@ class Dates extends Component{
                         id:"from",
                         type:"date",
                         bsClass:"form-control",
-                        defaultValue:this.props.start,
+                        defaultValue:this.props.from,
                         onChange:this.props.onChangeFrom,
-                        max:this.props.end,
+                        max:this.props.to,
                     },
                     {
                         label:"To",
                         id:"to",
                         type:"date",
                         bsClass:"form-control",
-                        defaultValue:this.props.end,
+                        defaultValue:this.props.to,
                         onChange:this.props.onChangeTo,
-                        min:this.props.to
+                        min:this.props.from
                     },
                     {
                         label:"Submit",
