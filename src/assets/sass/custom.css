@@ -93,3 +93,11 @@
     border-width: 2px;
     border-color: lightblue
 }
+
+.carousel-inner img {
+    
+  }
+
+.carousel-caption {
+    color:black
+}
