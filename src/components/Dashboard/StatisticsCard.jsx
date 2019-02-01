@@ -20,6 +20,7 @@ const options = {
       showDuration: 1000
       },
       chart:{
+          zoomType:'x',
           height:650
       }
   }

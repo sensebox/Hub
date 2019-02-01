@@ -124,7 +124,7 @@ class Dashboard extends Component {
             data:[]
         },function(){
             this.state.sensors.map((sensor)=>{
-                let url ="https://api.opensensemap.org/statistics/descriptive?boxId=5a30ea5375a96c000f012fe0&phenomenon="+
+                let url ="https://api.opensensemap.org/statistics/descriptive?boxId="+this.props.match.params.id+"&phenomenon="+
             sensor.title+"&from-date="+this.state.from+"T00:00:00.032Z&to-date="+this.state.to+"T23:59:00.032Z&operation=arithmeticMean"+
             "&window=300000&format=json" 
             fetch(url)
@@ -185,7 +185,7 @@ class Dashboard extends Component {
                     
                     </Col>
                     <Col md={2}>
-                        <Dates submitStats={this.submitStats} onChangeFrom={this.onChangeFrom} onChangeTo={this.onChangeTo} start={this.state.from} end={this.state.to}/>
+                        <Dates submitStats={this.submitStats} onChangeFrom={this.onChangeFrom} onChangeTo={this.onChangeTo} from={this.state.from} to={this.state.to}/>
                     </Col>
                     </div>
                 }

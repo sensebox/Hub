@@ -1,7 +1,9 @@
 import React, { Component } from "react";
-import { Grid, Row, Col, Button, FormControl } from "react-bootstrap";
+import { Grid, Row, Col, Button, FormControl, Carousel } from "react-bootstrap";
 import {Link} from 'react-router-dom'
 import img from 'assets/img/banner.jpg'
+import img2 from 'assets/img/stats.png'
+import img3 from 'assets/img/stats2.png'
 import 'assets/sass/custom.css'
 import NotificationSystem from 'react-notification-system';
 import {style} from "variables/Variables.jsx";
@@ -51,29 +53,49 @@ class Go extends Component {
         return(
         <Grid fluid>
             <NotificationSystem ref="notificationSystem" style={style}/>
-            <img alt="senseBoxGo" className="image_header_go" src={img}></img>
-            <Row style={{'marginLeft':0}}>
-                <h1>Welcome to the Dashboard<br></br>
-                    <small>Please enter your senseBox-ID</small>
-                </h1>
-            </Row>
-            <Row>
-            <Col md={6}>   
-            <FormControl
-            type="text"
-            placeholder="senseBoxID"
-            onChange={this.handleInput}
-            />
+            <Col md={2}>
+                <Row style={{'marginLeft':0}}>
+                    <h1>Welcome to the Dashboard<br></br>
+                        <small>Please enter your senseBox-ID</small>
+                    </h1>
+                </Row>
+                <Row>
+                    <Col md={6}>
+                <FormControl
+                type="text"
+                placeholder="senseBoxID"
+                onChange={this.handleInput}
+                />
+                </Col>
+                <Col md ={6}>
+                <Link to={`/sensebox/${ this.state.input }`}>           
+                <Button bsStyle="success" onClick={this.handleSubmit}>Load senseBox</Button>
+                </Link>
+                </Col>
+                </Row>
             </Col>
-            <Col md={6}> 
-            <Link to={`/sensebox/${ this.state.input }`}>           
-
-            <Button bsStyle="success" onClick={this.handleSubmit}>Load senseBox</Button>
-            </Link>
+            <Col md={10}> 
+            <Carousel width="2000" height="1000">
+                <Carousel.Item>
+                    <img alt="senseBoxGo" className="d-block w-100" width="100%" height="100%" src={img}/>
+                    <Carousel.Caption>
+                    <h3 style={{'color':'black'}}></h3>
+                </Carousel.Caption>
+                </Carousel.Item>
+                <Carousel.Item>
+                    <img alt="senseBoxDashboard" width="100%" height="100%" className="d-block w-100" src={img2}/>
+                    <Carousel.Caption>
+                    <h3 style={{'color':'black'}}>Look at stats</h3>
+                 </Carousel.Caption>
+                </Carousel.Item>
+                <Carousel.Item>
+                    <img alt="senseBoxDashGo" width="100%" height="100%" className="d-block w-100" src={img3}/>
+                    <Carousel.Caption>
+                    <h3 style={{'color':'black'}}>...or live measurements</h3>
+                </Carousel.Caption>
+                </Carousel.Item>
+            </Carousel>
             </Col>
-
-            </Row>
-
         </Grid>
         )
     }
