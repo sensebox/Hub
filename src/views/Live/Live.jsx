@@ -8,7 +8,8 @@ import {style} from "variables/Variables.jsx";
 import 'assets/sass/custom.css'
 import HighchartsReact from 'highcharts-react-official'
 import Collapsible from 'react-collapsible';
-
+import GraphEdit from 'components/Live/GraphEdit'
+import Network from 'components/Live/Network'
 global.Highcharts = require('highcharts');
 require('highcharts/modules/exporting')(global.Highcharts);
 require('highcharts/modules/export-data')(global.Highcharts);
@@ -77,9 +78,6 @@ class Live extends Component {
         this.stopInterval = this.stopInterval.bind(this);
         this.handleBroker = this.handleBroker.bind(this);
         this.clearGraph = this.clearGraph.bind(this);
-        this.handleIPInput = this.handleIPInput.bind(this);
-        this.handleTopicInput = this.handleTopicInput.bind(this);
-        this.handleKeyInput = this.handleKeyInput.bind(this);
         this.setExtreme1 = this.setExtreme1.bind(this);
         this.setExtreme2 = this.setExtreme2.bind(this);
         this.handleExtreme1low = this.handleExtreme1low.bind(this);
@@ -204,6 +202,7 @@ class Live extends Component {
         client = mqtt.connect('mqtt://'+this.state.ip + ':1884')
         var that = this;
         let chart = this.myRef.current.chart
+        console.log(this.state.topics)
         client.on('connect', function () {
             // On connection subscribe to the topic
             client.subscribe(that.state.topics, function (err,value) {
@@ -217,21 +216,7 @@ class Live extends Component {
             chart.get(topic).addPoint(value,true,false)
                 })  
     }
-    handleIPInput(e){
-        this.setState({ ip: e.target.value })
-    }
-    handleTopicInput(e){
-        var input = e.target.value
-        var topics = input.split(',');
-        var topics_new =[];
-        topics.map((topic)=>{
-            topics_new.push(this.state.key + "/"+topic) 
-        })
-        this.setState({ topics: topics,topic:input })
-    }
-    handleKeyInput(e){
-        this.setState({ key: e.target.value })
-    }
+
     handleExtreme1low(e){
         this.setState({extreme1low:e.target.value})
     }
@@ -277,7 +262,6 @@ class Live extends Component {
         this.setState({panel2:newClass})
     }
     render(){
-        if(!this.state.loading){
         return(
             <Grid fluid>
                 <Row>
@@ -285,145 +269,10 @@ class Live extends Component {
                 </Row>
                 <Row>
                 <Col md={6}>
-                <Panel className="des" bsStyle="success">
-                <Collapsible trigger = {
-                <div onClick={this.handlePanel1} className="panel-heading"> 					
-                <h3 class="panel-title collaps-title">Configure the graph</h3>
-                 <span class="pull-right clickable"><i class={this.state.panel1}></i></span></div>}>
-                    <Card 
-                        category = "Set minimum and maxium for the yAxis"
-                        content={
-                            <Grid fluid>
-                            <Row>
-                                <FormGroup>
-                                    <ControlLabel>Change title</ControlLabel>
-                                    <FormControl
-                                        bsSize="sm"
-                                        type ="text"
-                                        value={this.state.title}
-                                        placeholder="Give new title"
-                                        onChange = {this.setTitle}
-                                        />
-                                </FormGroup>
-                            </Row>
-                            <Row fluid>
-                            <Col md={6} className="smi">
-                                <FormGroup>
-                                    <ControlLabel>{this.state.topics[0]}</ControlLabel>
-                                <FormControl
-                                        bsSize="sm"
-                                        type ="number"
-                                        value={this.state.extreme1low}
-                                        placeholder="Scale"
-                                        onChange = {this.handleExtreme1low}
-                                        />
-                                <FormControl
-                                        bsSize="sm"
-                                        type ="number"
-                                        value={this.state.extreme1high}
-                                        placeholder="Scale"
-                                        onChange = {this.handleExtreme1high}
-                                        />     
-                                <FormControl
-                                    bsSize ="sm"
-                                    type="button"
-                                    value="Set scale for first yAxis"
-                                    onClick={this.setExtreme1}
-                                    />
-                                </FormGroup>
-                                </Col>
-                                { this.state.topics.length>1 ? 
-                                <Col md={6} className="smi">
-                                <FormGroup>
-                                    <ControlLabel>{this.state.topics[1]}</ControlLabel>
-                                <FormControl
-                                        bsSize="sm"
-                                        type ="number"
-                                        value={this.state.extreme2low}
-                                        placeholder="Scale"
-                                        onChange = {this.handleExtreme2low}
-                                        />
-                                <FormControl
-                                        bsSize="sm"
-                                        type ="number"
-                                        value={this.state.extreme2high}
-                                        placeholder="Scale"
-                                        onChange = {this.handleExtreme2high}
-                                        />     
-                                <FormControl
-                                    bsSize ="sm"
-                                    type="button"
-                                    value="Set scale for second yAxis"
-                                    onClick={this.setExtreme2}
-                                    />
-                                </FormGroup></Col>
-                                :
-                            <div></div>}
-                            </Row>
-                            </Grid>
-                        }/>
-                        </Collapsible>
-                        </Panel>
-                        </Col>
-                        
-                        
-                        <Col md={6}>
-                        <Panel className="des" bsStyle="success">
-                <Collapsible trigger = {
-                <div onClick={this.handlePanel2} className="panel-heading"> 					
-                <h3 class="panel-title collaps-title">Network functionalities</h3>
-                 <span class="pull-right clickable"><i class={this.state.panel2}></i></span></div>}>
-                        <Card 
-                                category="Edit your connection details"
-                                content={
-                                    <Grid fluid>
-                                    <Row>
-                                        <form>
-                                            <FormGroup
-                                                controlId="formBasicText">
-                                                <ControlLabel>Enter your credentials</ControlLabel>
-                                                <FormControl
-                                                    type="text"
-                                                    value={this.state.ip}
-                                                    placeholder="Enter IP"
-                                                    onChange={this.handleIPInput}
-                                                    />
-                                                <FormControl
-                                                    type="text"
-                                                    value={this.state.key}
-                                                    placeholder="Enter topic key"
-                                                    onChange={this.handleKeyInput}
-                                                    />   
-                                                <FormControl
-                                                    type="text"
-                                                    value={this.state.topic}
-                                                    placeholder="Enter Topic"
-                                                    onChange={this.handleTopicInput}
-                                                    />
-                                                {/*
-                                                <FormControl
-                                                    type="password"
-                                                    value={this.state.password}
-                                                    placeholder="Enter Password"
-                                                    onChange={this.handlePassword}
-                                                    /> */}
-                                                <FormControl.Feedback/>
-                                            </FormGroup>
-                                        </form>
-                                    </Row>
-                                    <Row>
-                                        {this.state.listening ? 
-                                        <Button onClick={this.stopInterval.bind(this,'tc')} className="eric_button" bsStyle ="danger">Stop Listening to MQTT</Button>:
-                                        <Button onClick={this.handleMQTT.bind(this,'tc')} className="eric_button" bsStyle="primary">Listen to MQTT</Button>
-                                        }
-                                        <Button onClick={()=>this.clearGraph()} disabled={this.state.listening} className="eric_button" bsStyle="danger">Clear data</Button>
-
-                                    </Row>
-                                    </Grid>
-                                }
-                                />
-                                </Collapsible>
-                                </Panel>                                
+                    <GraphEdit ref="GraphEdit"/>
+                </Col>
+                <Col md={6}>
+                    <Network ref="Network"/>
                 </Col>
                 </Row>
                 <Row> 
@@ -434,22 +283,17 @@ class Live extends Component {
                         stats={this.state.listening ? "Listening for new data":"Currently not listening for new data"}
                         statsIcon="pe-7s-video"
                         content={
-            <HighchartsReact
-            highcharts={global.Highcharts}
-            options={options}
-            ref={this.myRef}
-            />                         
-            }
+                            <HighchartsReact
+                            highcharts={global.Highcharts}
+                            options={options}
+                            ref={this.myRef}
+                            />                         
+                            }
                         />
                 </Col>
                 </Row>
             </Grid>
-        )}
-        else{
-            return(
-                <div className="spinner"></div>
-            )
-        }
+        )
     }
 }
 

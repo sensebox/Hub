@@ -3,7 +3,6 @@ import { NavItem, Nav, NavDropdown, MenuItem } from "react-bootstrap";
 
 class HeaderLinks extends Component {
   render() {
-    console.log(this.props)
     var link1,link2
     if(this.props.id){
      link1 = "https://eboard.netlify.com/?id=" + this.props.id;
