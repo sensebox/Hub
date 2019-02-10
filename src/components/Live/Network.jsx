@@ -69,6 +69,7 @@ class Network extends Component{
                 console.log("Client Subscribe:","Succesfully connected to the given topics!")
                 that.props.setAxes(that.state.topics)
                 that.setState({connected:true})
+                console.log("Done!Showing values(if there are any)now!")
             }
             else{
                 console.log("Error found when subscribin:",err.message)
