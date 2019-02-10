@@ -47,6 +47,7 @@ class Network extends Component{
     handleMQTT(){
         console.log('Connecting to MQTT Server ... ')
         // Give out notification 
+        this.props.setLoading(true);
         this.props.notifications.addNotification({
             title: (<span data-notify="icon" className="pe-7s-video"></span>),
             message: (
@@ -63,9 +64,8 @@ class Network extends Component{
     
         client.on('connect', function () {
             // On connection subscribe to the topic and create according axes for the values
-            client.subscribe(that.state.topics, function (err,value) {
-            if (!err) {
-                console.log(that.state)
+            client.subscribe(that.state.topics, function (err,granted) {
+             if (!err) {
                 console.log("Client Subscribe:","Succesfully connected to the given topics!")
                 that.props.setAxes(that.state.topics)
                 that.setState({connected:true})
@@ -84,6 +84,7 @@ class Network extends Component{
 
     disconnectMQTT(){
         console.log("Disconnecting from MQTT now")
+        this.props.setLoading(false)
         this.props.notifications.addNotification({
             title: (<span data-notify="icon" className="pe-7s-video"></span>),
             message: (
@@ -100,7 +101,7 @@ class Network extends Component{
     }
     addTopic(e){
         var newInput = `input-${this.state.inputs.length}`
-        this.setState(prevState => ({ inputs: prevState.inputs.concat([newInput]),topics:prevState.topics.concat(""),changed:true}));
+        this.setState(prevState => ({ inputs: prevState.inputs.concat([newInput])}));
     }
 
     removeTopic(e){
@@ -114,10 +115,7 @@ class Network extends Component{
             return parseInt(placeInArray) != index
         })
         this.props.clearGraph([this.state.topics[placeInArray]])
-
         this.setState({inputs:newInput,topics:newTopics})
-        // Remove dataset if there is any
-
     }
 
 
@@ -129,9 +127,9 @@ class Network extends Component{
                 <h3 className="panel-title collaps-title">Network functionalities</h3>
                  <span className="pull-right clickable"><MdKeyboardArrowDown size={'1.5em'}/></span></div>}>
             <Card 
-            category="Edit your connection details"
             content={
                 <Grid fluid>
+                <ControlLabel>Connection Details</ControlLabel>
                 <Row>
                     <FormGroup
                         controlId="formBasicText">
@@ -148,6 +146,18 @@ class Network extends Component{
                             onChange = {this.changekey}
                             />  
                         <FormControl.Feedback/>
+                    </FormGroup>
+                </Row>
+                <ControlLabel>Configurations</ControlLabel>
+                <Row>
+                    <FormGroup>
+                        <FormControl
+                            placeholder="Username"
+                            type="text"
+                            />
+                        <FormControl
+                            placeholder="password"
+                            type="password"/>
                     </FormGroup>
                 </Row>
                 <ControlLabel>Subscribed topics</ControlLabel>

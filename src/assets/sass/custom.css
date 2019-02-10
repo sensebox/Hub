@@ -101,3 +101,6 @@
 .carousel-caption {
     color:black
 }
+.no-width{
+    width: auto!important
+}

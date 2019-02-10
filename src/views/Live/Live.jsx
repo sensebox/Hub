@@ -58,7 +58,8 @@ class Live extends Component {
         this.state={
             loading:false,
             _notificationSystem: null,
-            topics:[]
+            topics:[],
+            connected:true
 
         }
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -68,7 +69,10 @@ class Live extends Component {
         this.addValue = this.addValue.bind(this)
         this.setAxes = this.setAxes.bind(this)
         this.clearGraph = this.clearGraph.bind(this)
-        this.setExtremes = this.setExtremes.bind(this)
+
+        this.setExtremes  = this.setExtremes.bind(this)
+        this.setNewTopic = this.setNewTopic.bind(this)
+        this.setLoading = this.setLoading.bind(this)
     }
     componentDidMount(){
         this.setState({_notificationSystem: this.refs.notificationSystem})
@@ -83,6 +87,7 @@ class Live extends Component {
             chart.get(topic).remove(false);
             chart.get(topic+'_ax').remove(false);
         }})
+
         chart.redraw();
     }
 
@@ -125,11 +130,20 @@ class Live extends Component {
         })
         this.setState({topics:topics})
     }
-
+    setNewTopic(topics){
+        this.setState({
+            topics
+        })
+    }
     setExtremes(topic,min,max){
         let chart = this.myRef.current.chart 
         let yAxis = chart.get(topic+'_ax')
         yAxis.setExtremes(min,max)
+    }
+    setLoading(bool){
+        this.setState({
+            connected:bool
+        })
     }
     render(){
         return(
@@ -139,10 +153,21 @@ class Live extends Component {
                 </Row>
                 <Row>
                 <Col md={6}>
-                    <GraphEdit setExtremes={this.setExtremes} topics={this.state.topics} setTitle = {this.setTitle} />
+                    <GraphEdit 
+                        setExtremes={this.setExtremes}
+                        topics={this.state.topics}
+                        setTitle = {this.setTitle}
+                        />
                 </Col>
                 <Col md={6}>
-                    <Network clearGraph = {this.clearGraph} setAxes = {this.setAxes} addValue = {this.addValue} notifications={this.state._notificationSystem}/>
+                    <Network
+                            setLoading={this.setLoading}
+                            setNewTopic={this.setNewTopic}
+                            clearGraph = {this.clearGraph}
+                            setAxes = {this.setAxes}
+                            addValue = {this.addValue}
+                            notifications={this.state._notificationSystem}
+                    />
                 </Col>
                 </Row>
                 <Row> 
@@ -150,7 +175,8 @@ class Live extends Component {
                     <Card 
                         title="Live Recordings of the Sensor"
                         category="Live Measurement"
-                        stats={this.state.listening ? "Listening for new data":"Currently not listening for new data"}
+                        stats={this.state.connected ? "Currently recording live values"
+                                                    : "Not recording live values"}
                         statsIcon="pe-7s-video"
                         content={
                             <HighchartsReact

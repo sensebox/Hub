@@ -15,7 +15,7 @@ class GraphEdit extends Component{
         this.changeMin = this.changeMin.bind(this)
         this.setExtremes = this.setExtremes.bind(this)
     }
-
+    
     clickHandler(e){
         console.log(this.state.toggle)
         this.setState((prevState)=>{
@@ -37,6 +37,7 @@ class GraphEdit extends Component{
             [name]:value
         })
     }
+
     setExtremes(e){
         let topic = e.target.name
         let min = this.state[topic+'_min']
@@ -44,6 +45,8 @@ class GraphEdit extends Component{
         // Call function in parent
         this.props.setExtremes(topic,min,max)
     }
+
+
     render(){
         return(
             <Panel className="margin_panel" bsStyle="success">
@@ -58,10 +61,8 @@ class GraphEdit extends Component{
                         }             
                         </span></div>}>
             <Card 
-                category = "Set minimum and maxium for the yAxis"
                 content={
-                    <Grid>
-                    <Row>
+                    <Grid className="no-width">
                         <FormGroup>
                             <ControlLabel>Change title</ControlLabel>
                             <FormControl
@@ -72,8 +73,8 @@ class GraphEdit extends Component{
                                 onChange={this.props.setTitle}
                                 />
                         </FormGroup>
-                    </Row>
-                    <Row >
+                    <ControlLabel>Change the extremes of the shown y-Axes</ControlLabel>
+                    <Row>
                     {this.props.topics.map((topic,index)=>{
                                 return(
                                 <Col md = {2} key = {index}>
@@ -83,7 +84,6 @@ class GraphEdit extends Component{
                                         name={topic}
                                         bsSize="sm"
                                         type ="number"
-                                        defaultValue="0"
                                         placeholder="Scale"
                                         onChange = {this.changeMin}
                                     />  
@@ -91,7 +91,6 @@ class GraphEdit extends Component{
                                         name={topic}
                                         bsSize="sm"
                                         type ="number"
-                                        defaultValue="100"
                                         placeholder="Scale"
                                         onChange = {this.changeMax}
                                         />
