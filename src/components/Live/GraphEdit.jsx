@@ -10,7 +10,6 @@ class GraphEdit extends Component{
         this.state = {
             toggle : false
         }
-        this.changeTitle = this.changeTitle.bind(this)
         this.clickHandler = this.clickHandler.bind(this)
     }
 
@@ -21,10 +20,6 @@ class GraphEdit extends Component{
         })
     
     }
-    changeTitle(e){
-        console.log(e.current.target)
-    }
-
     changeMax(e){
         console.log(e.current.target)
     }
@@ -54,9 +49,9 @@ class GraphEdit extends Component{
                                 <FormControl
                                     bsSize="sm"
                                     type ="text"
-                                    value="Title"
+                                    defaultValue="Live Messwerte"
                                     placeholder="Set new title"
-                                    onChange={this.changeTitle}
+                                    onChange={this.props.setTitle}
                                     />
                             </FormGroup>
                         </Row>
