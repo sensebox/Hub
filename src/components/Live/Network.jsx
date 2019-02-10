@@ -13,7 +13,6 @@ class Network extends Component{
             key:'',
             topics:[],
             connected:false,
-            changed:true,
             inputs:['input-0']
         }
         this.changeip = this.changeip.bind(this)
@@ -68,8 +67,7 @@ class Network extends Component{
             if (!err) {
                 console.log(that.state)
                 console.log("Client Subscribe:","Succesfully connected to the given topics!")
-                if(that.state.changed)
-                    that.props.setAxes(that.state.topics)
+                that.props.setAxes(that.state.topics)
                 that.setState({connected:true})
             }
             else{
@@ -106,7 +104,6 @@ class Network extends Component{
     }
 
     removeTopic(e){
-        if(this.state.inputs.length===1) return
         var newInput = this.state.inputs.filter((input)=>{
             return input != e.target.name
         })
@@ -116,7 +113,11 @@ class Network extends Component{
         var newTopics = this.state.topics.filter((topic,index)=>{
             return parseInt(placeInArray) != index
         })
-        this.setState({inputs:newInput,topics:newTopics,changed:true})
+        this.props.clearGraph([this.state.topics[placeInArray]])
+
+        this.setState({inputs:newInput,topics:newTopics})
+        // Remove dataset if there is any
+
     }
 
 
@@ -134,7 +135,6 @@ class Network extends Component{
                 <Row>
                     <FormGroup
                         controlId="formBasicText">
-                        <ControlLabel>Enter your credentials</ControlLabel>
                         <FormControl
                             type="text"
                             defaultValue={this.state.ip}
@@ -164,12 +164,12 @@ class Network extends Component{
                             </Col>
                             <Col md={6}>
                                 <Button 
-                                    bsStyle = "info" 
+                                    bsStyle = "success" 
                                     onClick={this.addTopic} 
                                     > 
                                     Add Topic
                                 </Button>
-                                <Button 
+                                {index ? <Button 
                                     style={{marginLeft:"5px"}} 
                                     bsStyle = "danger" 
                                     onClick={this.removeTopic} 
@@ -177,6 +177,8 @@ class Network extends Component{
                                     > 
                                     Remove Topic
                                 </Button>
+                                :<div className="noshow"></div> }
+                                
                             </Col>
                         </Row>)}
                     </Row>

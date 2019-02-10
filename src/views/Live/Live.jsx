@@ -79,7 +79,7 @@ class Live extends Component {
         let chart = this.myRef.current.chart
         console.log("Clearing the graph..")
         topics.map((topic)=>{
-            if(chart.get(topic)){
+            if(chart.get(topic) && chart.get(topic+'_ax')){
             chart.get(topic).remove(false);
             chart.get(topic+'_ax').remove(false);
         }})
@@ -106,6 +106,7 @@ class Live extends Component {
         let toggle = false
         console.log("Creating an axis for each topic ... ")
         topics.map((topic)=>{
+            if(chart.get(topic+'_ax')) return
             chart.addAxis({
                 id:topic+'_ax',
                 title:{
