@@ -19,6 +19,7 @@ var mqtt = require('mqtt')
 var options = {
     chart: {
         defaultSeriesType: 'spline',
+        zoomType:'x'
 
     },
     xAxis: {
@@ -57,6 +58,7 @@ class Live extends Component {
         this.state={
             loading:false,
             _notificationSystem: null,
+            topics:[]
 
         }
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -66,6 +68,7 @@ class Live extends Component {
         this.addValue = this.addValue.bind(this)
         this.setAxes = this.setAxes.bind(this)
         this.clearGraph = this.clearGraph.bind(this)
+        this.setExtremes = this.setExtremes.bind(this)
     }
     componentDidMount(){
         this.setState({_notificationSystem: this.refs.notificationSystem})
@@ -74,7 +77,7 @@ class Live extends Component {
 
     clearGraph(topics){
         let chart = this.myRef.current.chart
-
+        console.log("Clearing the graph..")
         topics.map((topic)=>{
             if(chart.get(topic)){
             chart.get(topic).remove(false);
@@ -95,14 +98,13 @@ class Live extends Component {
     }
     addValue(topic,val){
         let chart = this.myRef.current.chart
-        console.log(topic,val)
         chart.get(topic).addPoint(val,true,false)
     }
 
     setAxes(topics){
         let chart = this.myRef.current.chart 
         let toggle = false
-        console.log("Hello from set axes ")
+        console.log("Creating an axis for each topic ... ")
         topics.map((topic)=>{
             chart.addAxis({
                 id:topic+'_ax',
@@ -120,6 +122,13 @@ class Live extends Component {
             })
             toggle = !toggle
         })
+        this.setState({topics:topics})
+    }
+
+    setExtremes(topic,min,max){
+        let chart = this.myRef.current.chart 
+        let yAxis = chart.get(topic+'_ax')
+        yAxis.setExtremes(min,max)
     }
     render(){
         return(
@@ -129,10 +138,10 @@ class Live extends Component {
                 </Row>
                 <Row>
                 <Col md={6}>
-                    <GraphEdit ref="GraphEdit"/>
+                    <GraphEdit setExtremes={this.setExtremes} topics={this.state.topics} setTitle = {this.setTitle} />
                 </Col>
                 <Col md={6}>
-                    <Network clearGraph = {this.clearGraph} setAxes = {this.setAxes} addValue = {this.addValue} notifications={this.state._notificationSystem} ref="Network"/>
+                    <Network clearGraph = {this.clearGraph} setAxes = {this.setAxes} addValue = {this.addValue} notifications={this.state._notificationSystem}/>
                 </Col>
                 </Row>
                 <Row> 

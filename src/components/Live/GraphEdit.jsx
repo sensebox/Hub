@@ -11,6 +11,9 @@ class GraphEdit extends Component{
             toggle : false
         }
         this.clickHandler = this.clickHandler.bind(this)
+        this.changeMax = this.changeMax.bind(this)
+        this.changeMin = this.changeMin.bind(this)
+        this.setExtremes = this.setExtremes.bind(this)
     }
 
     clickHandler(e){
@@ -21,10 +24,25 @@ class GraphEdit extends Component{
     
     }
     changeMax(e){
-        console.log(e.current.target)
+        let name = e.target.name + '_max'
+        let value = e.target.value
+        this.setState({
+            [name]:value
+        })
     }
     changeMin(e){
-        console.log(e.current.target)
+        let name = e.target.name + '_min'
+        let value = e.target.value
+        this.setState({
+            [name]:value
+        })
+    }
+    setExtremes(e){
+        let topic = e.target.name
+        let min = this.state[topic+'_min']
+        let max = this.state[topic+'_max']
+        // Call function in parent
+        this.props.setExtremes(topic,min,max)
     }
     render(){
         return(
@@ -40,49 +58,58 @@ class GraphEdit extends Component{
                         }             
                         </span></div>}>
             <Card 
-                    category = "Set minimum and maxium for the yAxis"
-                    content={
-                        <Grid>
-                        <Row>
-                            <FormGroup>
-                                <ControlLabel>Change title</ControlLabel>
-                                <FormControl
-                                    bsSize="sm"
-                                    type ="text"
-                                    defaultValue="Live Messwerte"
-                                    placeholder="Set new title"
-                                    onChange={this.props.setTitle}
-                                    />
-                            </FormGroup>
-                        </Row>
-                        <Row >
-                        <Col md={6} className="smi">
-                            <FormGroup>
-                                <ControlLabel>Topics len </ControlLabel>
+                category = "Set minimum and maxium for the yAxis"
+                content={
+                    <Grid>
+                    <Row>
+                        <FormGroup>
+                            <ControlLabel>Change title</ControlLabel>
                             <FormControl
-                                    bsSize="sm"
-                                    type ="number"
-                                    value="Topic1"
-                                    placeholder="Scale"
-                                    onChange = {this.changeMin}
-                                    />
-                            <FormControl
-                                    bsSize="sm"
-                                    type ="number"
-                                    value="100"
-                                    placeholder="Scale"
-                                    onChange = {this.changeMax}
-                                    />     
-                            <FormControl
-                                bsSize ="sm"
-                                type="button"
-                                value="Set scale for first yAxis"
+                                bsSize="sm"
+                                type ="text"
+                                defaultValue="Live Messwerte"
+                                placeholder="Set new title"
+                                onChange={this.props.setTitle}
                                 />
-                            </FormGroup>
-                            </Col>
-                        </Row>
-                        </Grid>
-                    }/>
+                        </FormGroup>
+                    </Row>
+                    <Row >
+                    {this.props.topics.map((topic,index)=>{
+                                return(
+                                <Col md = {2} key = {index}>
+                                <FormGroup>
+                                    <ControlLabel>{topic}</ControlLabel>
+                                    <FormControl
+                                        name={topic}
+                                        bsSize="sm"
+                                        type ="number"
+                                        defaultValue="0"
+                                        placeholder="Scale"
+                                        onChange = {this.changeMin}
+                                    />  
+                                    <FormControl
+                                        name={topic}
+                                        bsSize="sm"
+                                        type ="number"
+                                        defaultValue="100"
+                                        placeholder="Scale"
+                                        onChange = {this.changeMax}
+                                        />
+                                    <FormControl
+                                        bsSize ="sm"
+                                        name={topic}
+                                        type="submit"
+                                        value="Set Extremes"
+                                        onClick={this.setExtremes}
+                                    /> 
+                                </FormGroup>
+                                </Col>
+                                )
+                            })}
+                            
+                    </Row>
+                    </Grid>
+                }/>
                 </Collapsible>
             </Panel>
         )
