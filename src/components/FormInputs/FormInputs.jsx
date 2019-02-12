@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { FormGroup, ControlLabel, FormControl, Row } from "react-bootstrap";
-
+import Button from '../CustomButton/CustomButton'
 function FieldGroup({ label, ...props }) {
   return (
     <FormGroup>
@@ -17,6 +17,7 @@ export class FormInputs extends Component {
       row.push(
         <div key={i} className={this.props.ncols[i]}>
           <FieldGroup {...this.props.proprieties[i]} />
+          
         </div>
       );
     }
