@@ -81,7 +81,14 @@ class Network extends Component{
             position: 'tc',
             autoDismiss: 5,
         });
-        client = mqtt.connect('mqtt://'+this.state.ip + ':1884')
+        // Options variable stored for mqtt connection
+        var options ={
+            port:this.state.port,
+            host:this.state.ip,
+            username:this.state.username,
+            password:this.state.password
+            }   
+        client = mqtt.connect(options)
         var that = this;
     
         client.on('connect', function () {
@@ -98,7 +105,10 @@ class Network extends Component{
             }
             })
         })
-      
+      client.on('error',function(error){
+          console.log("Error occured this is the message:",error.message)
+          client.end();
+      })
       client.on('message', function (topic, message) {
             let value = parseFloat(message.toString());
             that.props.addValue(topic,value)
@@ -214,19 +224,21 @@ class Network extends Component{
                             <Button
                                 className="topic_add_button"
                                 onClick={this.addTopic}
-                                bsStyle="success"
-                            
-                            >Add topic</Button>
-                            {index ? <Button 
-                                    style={{marginLeft:"5px"}} 
-                                    bsStyle = "warning" 
-                                    onClick={this.removeTopic} 
-                                    name = {input}
-                                    className="topic_add_button"
-                                    > 
-                                    Remove Topic
-                                </Button>
-                                :<div className="noshow"></div> }
+                                bsStyle="success"                         
+                            >
+                            Add topic
+                            </Button>
+                            {index ? 
+                                    <Button 
+                                        style={{marginLeft:"5px"}} 
+                                        bsStyle = "warning" 
+                                        onClick={this.removeTopic} 
+                                        name = {input}
+                                        className="topic_add_button"> 
+                                        Remove Topic
+                                    </Button>
+                                    :
+                                    <div className="noshow"/> }
                         </Col>
                     </Row>
                         )}
