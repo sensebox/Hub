@@ -3,6 +3,8 @@ import {Grid,Row,Col,FormControl,ControlLabel,FormGroup,Panel} from 'react-boots
 import Card from 'components/Card/Card'
 import Collapsible from 'react-collapsible';
 import {MdKeyboardArrowDown,MdKeyboardArrowUp} from 'react-icons/md'
+import {FormInputs} from 'components/FormInputs/FormInputs.jsx'
+
 
 class GraphEdit extends Component{
     constructor(props){
@@ -63,16 +65,17 @@ class GraphEdit extends Component{
             <Card 
                 content={
                     <Grid className="no-width">
-                        <FormGroup>
-                            <ControlLabel>Change title</ControlLabel>
-                            <FormControl
-                                bsSize="sm"
-                                type ="text"
-                                defaultValue="Live Messwerte"
-                                placeholder="Set new title"
-                                onChange={this.props.setTitle}
-                                />
-                        </FormGroup>
+                        <FormInputs
+                            ncols={["col-md-12"]}
+                            proprieties={[
+                                {
+                                    label:"Change title",
+                                    type:"text",
+                                    defaultValue:"Live Messwerte",
+                                    onChange:this.props.setTitle
+                                }
+                            ]}
+                        />
                     <ControlLabel>Change the extremes of the shown y-Axes</ControlLabel>
                     <Row>
                     {this.props.topics.map((topic,index)=>{

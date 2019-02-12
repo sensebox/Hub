@@ -1,5 +1,6 @@
 import React,{Component} from 'react'
-import {Grid,Row,Col,FormControl,ControlLabel,FormGroup,Panel,Button} from 'react-bootstrap'
+import Button from 'components/CustomButton/CustomButton'
+import {Grid,Row,Col,FormControl,ControlLabel,FormGroup,Panel} from 'react-bootstrap'
 import Card from 'components/Card/Card'
 import Collapsible from 'react-collapsible';
 import {MdKeyboardArrowDown} from 'react-icons/md'
@@ -21,6 +22,8 @@ class Network extends Component{
         this.changekey = this.changekey.bind(this)
         this.changetopic = this.changetopic.bind(this)
         this.changeport = this.changeport.bind(this)
+        this.changeusername = this.changeusername.bind(this)
+        this.changepassword = this.changepassword.bind(this)
         
         this.handleMQTT = this.handleMQTT.bind(this)
         this.disconnectMQTT = this.disconnectMQTT.bind(this)
@@ -192,7 +195,7 @@ class Network extends Component{
                 />
                 <ControlLabel>Subscribed topics</ControlLabel>
                 {this.state.inputs.map((input,index)=>
-                    <Row>
+                    <Row key={index}>
                         <Col md={8}>
                         <FormInputs
                             ncols={["col-md-12"]}
