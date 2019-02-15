@@ -41,6 +41,7 @@ class Network extends Component{
         this.addTopic = this.addTopic.bind(this)
         this.removeTopic = this.removeTopic.bind(this)
         this.dioty = this.dioty.bind(this)
+        this.own = this.own.bind(this)
     }
     changehost(e){
         let host = e.target.value
@@ -63,8 +64,11 @@ class Network extends Component{
         this.setState({password})
     }
     changetopic(e){
+        
         let placeInArray = e.target.id
-        let input = e.target.value
+        let input
+        this.state.host==='mqtt.dioty.co' ? input = this.state.rootTopic + e.target.value
+                                          : input = e.target.value
         var newTopics = this.state.topics
         newTopics[placeInArray] = input     
         this.setState({topics:newTopics})
@@ -121,8 +125,7 @@ class Network extends Component{
             that.props.addValue(topic,value)
                 })  
     }
-
-       
+   
     disconnectMQTT(){
         console.log("Disconnecting from MQTT now")
         this.props.setLoading(false)
@@ -173,15 +176,19 @@ class Network extends Component{
         checked ? this.setState ({
                     host:'mqtt.dioty.co',
                     port:'8080',
-                    checkbox:true
+                    checkbox:true,
+                    rootTopic:'/'+this.state.username+'/'
                         }
                     )
+
                 :  this.setState({
                     host:'',
                     port:'',
-                    checkbox:false
+                    checkbox:false,
+                    
                         }
                     )
+        
     }
     sensebox(e){
         let checked = e.target.checked
@@ -294,6 +301,18 @@ class Network extends Component{
                     ]}                    
                 />
                 <ControlLabel>Subscribed topics</ControlLabel>
+                {this.state.host==='mqtt.dioty.co' ? <FormInputs
+                    ncols={["col-md-8"]}
+                    proprieties={[
+                        {
+                            label:"Root topic",
+                            type:"text",
+                            value:this.state.rootTopic,
+                            disabled:true
+                        }
+                    ]
+                }/>
+                        :  <div></div>}
                 {this.state.inputs.map((input,index)=>
                     <Row key={index}>
                         <Col md={8}>
