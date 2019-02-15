@@ -19,8 +19,8 @@ class Network extends Component{
             topics:[],
             connected:false,
             inputs:['input-0'],
-            username: 'erictg96@googlemail.com',
-            password: '9157fbb4',
+            username: '',
+            password: '',
             checkbox:false,
             radio:"3"
         }
