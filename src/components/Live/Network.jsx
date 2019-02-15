@@ -57,7 +57,8 @@ class Network extends Component{
     }
     changeusername(e){
         let username = e.target.value
-        this.setState({username})
+        let rootTopic = '/'+username+'/'
+        this.setState({username,rootTopic})
     }
     changepassword(e){
         let password = e.target.value
@@ -210,7 +211,8 @@ class Network extends Component{
         this.handleRadio(e)
         this.setState({
             host:'',
-            port:''
+            port:'',
+            checkbox:false
         })
         
     }
@@ -248,7 +250,7 @@ class Network extends Component{
                 <Col md={4}>
                     <Radio 
                         number="3"
-                        option="2"
+                        option="3"
                         name="radio"
                         onChange={this.own}
                         checked={this.state.radio==="3"}
