@@ -20,9 +20,9 @@ class GraphEdit extends Component{
     
     clickHandler(e){
         console.log(this.state.toggle)
-        this.setState((prevState)=>{
-            toggle:!prevState.toggle
-        })
+        // this.setState((prevState)=>{
+        //     toggle:  !prevState.toggle
+        // })
     
     }
     changeMax(e){

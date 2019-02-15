@@ -5,20 +5,26 @@ import Card from 'components/Card/Card'
 import Collapsible from 'react-collapsible';
 import {MdKeyboardArrowDown} from 'react-icons/md'
 import {FormInputs} from 'components/FormInputs/FormInputs.jsx'
+import Radio from 'components/CustomRadio/CustomRadio'
+
 var mqtt = require('mqtt')
 var client;
 class Network extends Component{
     constructor(props){
         super(props)
         this.state = {
-            ip:'192.168.0.53',
-            port:"1884",
+            host:'',
+            port:'',
             key:'',
             topics:[],
             connected:false,
-            inputs:['input-0']
+            inputs:['input-0'],
+            username: 'erictg96@googlemail.com',
+            password: '9157fbb4',
+            checkbox:false,
+            radio:"3"
         }
-        this.changeip = this.changeip.bind(this)
+        this.changehost = this.changehost.bind(this)
         this.changekey = this.changekey.bind(this)
         this.changetopic = this.changetopic.bind(this)
         this.changeport = this.changeport.bind(this)
@@ -29,12 +35,16 @@ class Network extends Component{
         this.disconnectMQTT = this.disconnectMQTT.bind(this)
         this.clearGraph = this.clearGraph.bind(this)
 
+        /*
+        */
+        this.sensebox = this.sensebox.bind(this)
         this.addTopic = this.addTopic.bind(this)
         this.removeTopic = this.removeTopic.bind(this)
+        this.dioty = this.dioty.bind(this)
     }
-    changeip(e){
-        let ip = e.target.value
-        this.setState({ip})
+    changehost(e){
+        let host = e.target.value
+        this.setState({host})
     }
     changeport(e){
         let port = e.target.value
@@ -56,7 +66,7 @@ class Network extends Component{
         let placeInArray = e.target.id
         let input = e.target.value
         var newTopics = this.state.topics
-        newTopics[placeInArray] = input        
+        newTopics[placeInArray] = input     
         this.setState({topics:newTopics})
     }
     clearGraph(){
@@ -81,14 +91,11 @@ class Network extends Component{
             position: 'tc',
             autoDismiss: 5,
         });
-        // Options variable stored for mqtt connection
-        var options ={
-            port:this.state.port,
-            host:this.state.ip,
+
+        client = mqtt.connect("mqtt://"+this.state.host+":"+this.state.port,{
             username:this.state.username,
             password:this.state.password
-            }   
-        client = mqtt.connect(options)
+        })
         var that = this;
     
         client.on('connect', function () {
@@ -101,7 +108,7 @@ class Network extends Component{
                 console.log("Done!Showing values(if there are any)now!")
             }
             else{
-                console.log("Error found when subscribin:",err.message)
+                console.log("Error found when subscribing:",err.message)
             }
             })
         })
@@ -115,6 +122,7 @@ class Network extends Component{
                 })  
     }
 
+       
     disconnectMQTT(){
         console.log("Disconnecting from MQTT now")
         this.props.setLoading(false)
@@ -151,17 +159,96 @@ class Network extends Component{
         this.setState({inputs:newInput,topics:newTopics})
     }
 
+    handleRadio = event => {
+        const target = event.target;
+        this.setState({
+            [target.name]: target.value
+        });
+    };
 
+    dioty(e){
+        
+        let checked = e.target.checked
+        this.handleRadio(e);
+        checked ? this.setState ({
+                    host:'mqtt.dioty.co',
+                    port:'8080',
+                    checkbox:true
+                        }
+                    )
+                :  this.setState({
+                    host:'',
+                    port:'',
+                    checkbox:false
+                        }
+                    )
+    }
+    sensebox(e){
+        let checked = e.target.checked
+        this.handleRadio(e)
+        checked ? this.setState({
+                    host:'sensebox.mqtt.com',
+                    port:'8080',
+                    checkbox:true
+                })
+                : this.setState({
+                    host:'',
+                    port:'',
+                    checkbox:false
+                })
+    }
+
+    own(e){
+        let checked = e.target.checked
+        this.handleRadio(e)
+        this.setState({
+            host:'',
+            port:''
+        })
+        
+    }
     render(){
         return(
             <Panel className="margin_panel" bsStyle="success">
-            <Collapsible trigger = {
+            <Collapsible open = {true} trigger = {
                 <div onClick={this.handlePanel2} className="panel-heading"> 					
                 <h3 className="panel-title collaps-title">Network functionalities</h3>
                  <span className="pull-right clickable"><MdKeyboardArrowDown size={'1.5em'}/></span></div>}>
             <Card 
             content={
             <Grid fluid>
+            <Row>
+                <Col md = {4}>
+                    <Radio
+                        number="1"
+                        option="1"
+                        name="radio"
+                        onChange={this.dioty}
+                        checked={this.state.radio==="1"}
+                        label="Connection through dioty.co"
+                    />
+                </Col>
+                <Col md={4}>
+                    <Radio
+                        number="2"
+                        option="2"
+                        name="radio"
+                        onChange={this.sensebox}
+                        checked={this.state.radio==="2"}
+                        label="Connection through senseBox"
+                    />
+                </Col>
+                <Col md={4}>
+                    <Radio 
+                        number="3"
+                        option="2"
+                        name="radio"
+                        onChange={this.own}
+                        checked={this.state.radio==="3"}
+                        label="Setup your own connection"
+                    />
+                </Col>
+            </Row>
                 <FormInputs
                     ncols ={["col-md-8","col-md-4"]}
                     proprieties={[
@@ -170,8 +257,9 @@ class Network extends Component{
                             type:"text",
                             bsClass:"form-control",
                             placeholder:"Server address",
-                            defaultValue:this.state.ip,
-                            onChange:this.changeip
+                            defaultValue:this.state.host,
+                            onChange:this.changeip,
+                            disabled:this.state.checkbox
                         },
                         {
                             label:"Port",
@@ -179,6 +267,7 @@ class Network extends Component{
                             bsClass:"form-control",
                             placeholder:"Port number",
                             defaultValue:this.state.port,
+                            disabled:this.state.checkbox,
                             onChange:this.changeport
                         }
                     ]}
@@ -191,7 +280,7 @@ class Network extends Component{
                             placeholder:"Username",
                             bsClass:"form-control",
                             type:"text",
-                            defaultValue:"",
+                            defaultValue:this.state.username,
                             onChange:this.changeusername
                         },
                         {
@@ -199,6 +288,7 @@ class Network extends Component{
                             placeholder:"Password",
                             bsClass:"form-control",                                
                             type:"password",
+                            defaultValue:this.state.paswword,
                             onChange:this.changepassword
                         }
                     ]}                    
@@ -247,7 +337,6 @@ class Network extends Component{
                     {this.state.connected ? <Button bsStyle="warning" onClick={this.disconnectMQTT}>Disconnect from MQTT</Button>
                                           :  <Button bsStyle="info" onClick={this.handleMQTT}>Connect to MQTT</Button>
                     }
-
                     <Button bsStyle="danger" style={{marginLeft:"5px"}} disabled = {this.state.connected} onClick={this.clearGraph}>Clear graph data</Button>
                     </Col>
                 </Row>
