@@ -67,7 +67,7 @@ class Network extends Component{
         
         let placeInArray = e.target.id
         let input
-        this.state.host==='mqtt.dioty.co' ? input = this.state.rootTopic + e.target.value
+        this.state.host==='mqtt.dioty.co' ? input = '/'+this.state.username+'/' + e.target.value
                                           : input = e.target.value
         var newTopics = this.state.topics
         newTopics[placeInArray] = input     
@@ -300,19 +300,19 @@ class Network extends Component{
                         }
                     ]}                    
                 />
-                <ControlLabel>Subscribed topics</ControlLabel>
                 {this.state.host==='mqtt.dioty.co' ? <FormInputs
                     ncols={["col-md-8"]}
                     proprieties={[
                         {
                             label:"Root topic",
                             type:"text",
-                            value:this.state.rootTopic,
+                            value:'/'+this.state.username+'/',
                             disabled:true
                         }
                     ]
                 }/>
                         :  <div></div>}
+                <ControlLabel>Subscribed topics</ControlLabel>
                 {this.state.inputs.map((input,index)=>
                     <Row key={index}>
                         <Col md={8}>
