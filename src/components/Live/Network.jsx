@@ -97,11 +97,27 @@ class Network extends Component{
             position: 'tc',
             autoDismiss: 5,
         });
-
-        client = mqtt.connect("mqtt://"+this.state.host+":"+this.state.port,{
-            username:this.state.username,
-            password:this.state.password
-        })
+        var clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8)
+        var host = "ws://"+this.state.host+":"+this.state.port+'/ws'
+        var options = {
+            keepalive: 10,
+            clientId: clientId,
+            protocolId: 'MQTT',
+            protocolVersion: 4,
+            clean: true,
+            reconnectPeriod: 1000,
+            connectTimeout: 30 * 1000,
+            will: {
+              topic: 'WillMsg',
+              payload: 'Connection Closed abnormally..!',
+              qos: 0,
+              retain: false
+            },
+            username: this.state.username,
+            password: this.state.password,
+            rejectUnauthorized: false
+          }
+        client = mqtt.connect(host,options)
         var that = this;
     
         client.on('connect', function () {
