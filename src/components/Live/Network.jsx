@@ -98,7 +98,8 @@ class Network extends Component{
             autoDismiss: 5,
         });
         var clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8)
-        var host = "ws://"+this.state.host+":"+this.state.port+'/ws'
+
+        var host = "wss://"+this.state.host+":"+this.state.port+'/ws'
         var options = {
             keepalive: 10,
             clientId: clientId,
