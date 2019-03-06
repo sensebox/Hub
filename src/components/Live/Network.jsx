@@ -82,6 +82,7 @@ class Network extends Component{
         this.setState({port})
     }
     handleMQTT(){
+        if(client)client.end()
         console.log('Connecting to MQTT Server ... ')
         // Give out notification 
         this.props.setLoading(true);
@@ -267,7 +268,7 @@ class Network extends Component{
                             bsClass:"form-control",
                             placeholder:"Server address",
                             defaultValue:this.state.host,
-                            onChange:this.changeip,
+                            onChange:this.changehost,
                             disabled:this.state.checkbox
                         },
                         {
