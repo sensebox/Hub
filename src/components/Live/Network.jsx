@@ -7,7 +7,7 @@ import {MdKeyboardArrowDown} from 'react-icons/md'
 import {FormInputs} from 'components/FormInputs/FormInputs.jsx'
 import Radio from 'components/CustomRadio/CustomRadio'
 
-var mqtt = require('mqtt')
+var Paho = require('paho-mqtt')
 var client;
 class Network extends Component{
     constructor(props){
@@ -81,53 +81,73 @@ class Network extends Component{
         let port = e.target.value
         this.setState({port})
     }
+
+    // Should connect to the given mqtt broker and subscribe to given topics
     handleMQTT(){
-        if(client)client.end()
-        console.log('Connecting to MQTT Server ... ')
+        console.log("Connecting to MQTT Server");
         // Give out notification 
         this.props.setLoading(true);
         this.props.notifications.addNotification({
             title: (<span data-notify="icon" className="pe-7s-video"></span>),
             message: (
                 <div>
-                    Live Data is now recording
+                    Connecting to the the host {this.state.host} on the port {this.state.port}
                 </div>
             ),
             level: "info",
             position: 'tc',
             autoDismiss: 5,
         });
-
-        client = mqtt.connect("mqtt://"+this.state.host+":"+this.state.port,{
-            username:this.state.username,
-            password:this.state.password
-        })
-        var that = this;
-    
-        client.on('connect', function () {
-            // On connection subscribe to the topic and create according axes for the values
-            client.subscribe(that.state.topics, function (err,granted) {
-             if (!err) {
-                console.log("Client Subscribe:","Succesfully connected to the given topics!")
-                that.props.setAxes(that.state.topics)
-                that.setState({connected:true})
-                console.log("Done!Showing values(if there are any)now!")
-            }
-            else{
-                console.log("Error found when subscribing:",err.message)
-            }
-            })
-        })
-      client.on('error',function(error){
-          console.log("Error occured this is the message:",error.message)
-          client.end();
-      })
-      client.on('message', function (topic, message) {
-            let value = parseFloat(message.toString());
-            that.props.addValue(topic,value)
-                })  
+        client = new Paho.Client(this.state.host,Number(this.state.port),"client1337")
+        client.onConnectionLost = this.onConnectionLost;
+        client.onMessageArrived = this.onMessageArrived;
+        client.connect({
+            onSuccess:()=>this.onConnect(this),
+            onFailure:this.onFailure,
+            useSSL:true,
+           // hosts:['ws://'+this.state.host+':'+Number(this.state.port)+'/ws'],
+            userName:this.state.username,
+            password: this.state.password
+        });     
     }
-   
+    onConnect(that){
+        console.log("Connected to the MQTT Broker");
+        client.subscribe(that.state.topics,{
+            onSuccess:()=>this.onSuccessTopic(this),
+            onFailure:this.onFailureTopic
+        });
+    }
+    onSuccessTopic(that){
+        console.log("Subscribed to the topics")
+        that.props.notifications.addNotification({
+            title: (<span data-notify="icon" className="pe-7s-video"></span>),
+            message: (
+                <div>
+                    Succesfully connected to the given server and topics ! You are ready to go!
+                </div>
+            ),
+            level: "info",
+            position: 'tc',
+            autoDismiss: 5,
+        });
+    }
+    onFailureTopic(responseObject){
+        console.log(responseObject)
+    }
+    onConnectionLost(responseObject){
+        if(responseObject.errorCode !== 0 ){
+            console.log("onConnectionLost:"+responseObject.errorMessage);     
+        }
+    }
+    onMessageArrived(message){
+        console.log("onMessageArrived:"+message.payloadString);
+        // let value = parseFloat(message.toString());
+        // that.props.addValue(topic,value)
+    }
+    onFailure(responseObject){
+        console.log("Something went wrong: "+ responseObject.errorMessage)
+
+    }
     disconnectMQTT(){
         console.log("Disconnecting from MQTT now")
         this.props.setLoading(false)
