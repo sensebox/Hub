@@ -104,8 +104,8 @@ class Network extends Component{
         client.connect({
             onSuccess:()=>this.onConnect(this),
             onFailure:this.onFailure,
-            useSSL:false,
-            hosts:['ws://'+this.state.host+':'+Number(this.state.port)+'/ws'],
+            useSSL:true,
+           // hosts:['ws://'+this.state.host+':'+Number(this.state.port)+'/ws'],
             userName:this.state.username,
             password: this.state.password
         });     
@@ -216,9 +216,11 @@ class Network extends Component{
         let checked = e.target.checked
         this.handleRadio(e)
         checked ? this.setState({
-                    host:'sensebox.mqtt.com',
-                    port:'8080',
-                    checkbox:true
+                    host:'mqtt.sensebox.de',
+                    port:'15675',
+                    checkbox:true,
+                    username:'mqtt-experimente:experimente',
+                    password: 'experimente'
                 })
                 : this.setState({
                     host:'',
