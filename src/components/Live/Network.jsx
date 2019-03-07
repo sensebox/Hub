@@ -104,8 +104,7 @@ class Network extends Component{
         client.connect({
             onSuccess:()=>this.onConnect(this),
             onFailure:this.onFailure,
-            useSSL:false,
-            hosts:['ws://'+this.state.host+':'+Number(this.state.port)+'/ws'],
+            useSSL:true,
             userName:this.state.username,
             password: this.state.password
         });     
