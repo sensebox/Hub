@@ -22,7 +22,7 @@ class Network extends Component{
             username: '',
             password: '',
             checkbox:false,
-            radio:"3"
+            radio:"1"
         }
         this.changehost = this.changehost.bind(this)
         this.changekey = this.changekey.bind(this)
@@ -42,6 +42,10 @@ class Network extends Component{
         this.removeTopic = this.removeTopic.bind(this)
         this.dioty = this.dioty.bind(this)
         this.own = this.own.bind(this)
+    }
+
+    componentDidMount() {
+        this.sensebox('cdm')
     }
     changehost(e){
         let host = e.target.value
@@ -99,7 +103,7 @@ class Network extends Component{
         });
         var clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8)
 
-        var host = "mqtts://"+this.state.host+":"+this.state.port+'/ws'
+        var host = "wss://"+this.state.host+":"+this.state.port+'/ws'
         var options = {
             keepalive: 10,
             clientId: clientId,
@@ -184,7 +188,6 @@ class Network extends Component{
     };
 
     dioty(e){
-        
         let checked = e.target.checked
         this.handleRadio(e);
         checked ? this.setState ({
@@ -205,18 +208,25 @@ class Network extends Component{
         
     }
     sensebox(e){
-        let checked = e.target.checked
-        this.handleRadio(e)
-        checked ? this.setState({
-                    host:'sensebox.mqtt.com',
-                    port:'8080',
-                    checkbox:true
+        let checked;
+        if(e.target){checked = e.target.checked
+                this.handleRadio(e)}
+
+        console.log(e);
+        
+        checked || e === 'cdm' ? this.setState({
+                    host:'mqtt.sensebox.de',
+                    port:'1884',
+                    checkbox:true,
+                    username:"mqtt-experimente:experimente",
+                    password:'experimente'
                 })
                 : this.setState({
                     host:'',
                     port:'',
                     checkbox:false
                 })
+        
     }
 
     own(e){
@@ -225,7 +235,9 @@ class Network extends Component{
         this.setState({
             host:'',
             port:'',
-            checkbox:false
+            checkbox:false,
+            username:'',
+            password:''
         })
         
     }
@@ -241,23 +253,23 @@ class Network extends Component{
             <Grid fluid>
             <Row>
                 <Col md = {4}>
-                    <Radio
+                <Radio
                         number="1"
                         option="1"
                         name="radio"
-                        onChange={this.dioty}
+                        onChange={this.sensebox}
                         checked={this.state.radio==="1"}
-                        label="Connection through dioty.co"
+                        label="Connection through senseBox"
                     />
                 </Col>
                 <Col md={4}>
-                    <Radio
+                <Radio
                         number="2"
                         option="2"
                         name="radio"
-                        onChange={this.sensebox}
+                        onChange={this.dioty}
                         checked={this.state.radio==="2"}
-                        label="Connection through senseBox"
+                        label="Connection through dioty.co"
                     />
                 </Col>
                 <Col md={4}>
