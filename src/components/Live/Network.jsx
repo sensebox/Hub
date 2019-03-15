@@ -13,14 +13,14 @@ class Network extends Component{
     constructor(props){
         super(props)
         this.state = {
-            host:'',
-            port:'',
-            key:'',
+            host:null,
+            port:null,
+            key:null,
             topics:[],
             connected:false,
             inputs:['input-0'],
-            username: '',
-            password: '',
+            username: null,
+            password: null,
             checkbox:false,
             radio:"1"
         }
@@ -87,20 +87,31 @@ class Network extends Component{
     }
     handleMQTT(){
         if(client)client.end()
+        if(
+            this.state.username === '' || 
+            this.state.password === '' ||
+            this.state.host === '' || 
+            this.state.port === '' ||
+            this.state.topics.length === 0  
+        ) {
+          
+            this.props.notifications.addNotification({
+                title: (<span data-notify="icon" className="pe-7s-close-circle"></span>),
+                message: (
+                    <div>
+                        Please fill out all the input fields
+                    </div>
+                ),
+                level: "error",
+                position: 'tc',
+                autoDismiss: 5,
+            });
+            return null;
+        }
         console.log('Connecting to MQTT Server ... ')
+        this.setState({connected:true})
         // Give out notification 
         this.props.setLoading(true);
-        this.props.notifications.addNotification({
-            title: (<span data-notify="icon" className="pe-7s-video"></span>),
-            message: (
-                <div>
-                    Live Data is now recording
-                </div>
-            ),
-            level: "info",
-            position: 'tc',
-            autoDismiss: 5,
-        });
         var clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8)
 
         var host = "wss://"+this.state.host+":"+this.state.port+'/ws'
@@ -126,16 +137,49 @@ class Network extends Component{
              if (!err) {
                 console.log("Client Subscribe:","Succesfully connected to the given topics!")
                 that.props.setAxes(that.state.topics)
-                that.setState({connected:true})
                 console.log("Done!Showing values(if there are any)now!")
+                that.props.notifications.addNotification({
+                    title: (<span data-notify="icon" className="pe-7s-video"></span>),
+                    message: (
+                        <div>
+                            Live Data is now recording
+                        </div>
+                    ),
+                    level: "info",
+                    position: 'tc',
+                    autoDismiss: 5,
+                });
             }
             else{
                 console.log("Error found when subscribing:",err.message)
+                that.props.notifications.addNotification({
+                    title: (<span data-notify="icon" className="pe-7s-close-circle"></span>),
+                    message: (
+                        <div>
+                            {err.message}
+                        </div>
+                    ),
+                    level: "error",
+                    position: 'tc',
+                    autoDismiss: 5,
+                });
+                that.setState({connected:false})
             }
             })
         })
       client.on('error',function(error){
           console.log("Error occured this is the message:",error.message)
+          that.props.notifications.addNotification({
+            title: (<span data-notify="icon" className="pe-7s-close-circle"></span>),
+            message: (
+                <div>
+                    An Error occured this the error message : {error.message}
+                </div>
+            ),
+            level: "error",
+            position: 'tc',
+            autoDismiss: 5,
+        });
           client.end();
       })
       client.on('message', function (topic, message) {
@@ -161,6 +205,7 @@ class Network extends Component{
         this.setState({connected:false,changed:false})
         client.end()
     }
+
     addTopic(e){
         var newInput = `input-${this.state.inputs.length}`
         this.setState(prevState => ({ inputs: prevState.inputs.concat([newInput])}));
@@ -197,7 +242,6 @@ class Network extends Component{
                     rootTopic:'/'+this.state.username+'/'
                         }
                     )
-
                 :  this.setState({
                     host:'',
                     port:'',
@@ -209,11 +253,11 @@ class Network extends Component{
     }
     sensebox(e){
         let checked;
-        if(e.target){checked = e.target.checked
-                this.handleRadio(e)}
-
-        console.log(e);
-        
+        if(e.target)
+                {
+                checked = e.target.checked
+                this.handleRadio(e)
+                }
         checked || e === 'cdm' ? this.setState({
                     host:'mqtt.sensebox.de',
                     port:'1884',
@@ -224,6 +268,8 @@ class Network extends Component{
                 : this.setState({
                     host:'',
                     port:'',
+                    username:'',
+                    password:'',
                     checkbox:false
                 })
         
