@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import { Grid, Row, Col} from "react-bootstrap";
 import 'assets/skins/all.css'
-import LiveMeasurements from 'components/Dashboard/LiveMeasurements.jsx'
-import StatisticsCard from 'components/Dashboard/StatisticsCard.jsx'
+import LiveMeasurements from 'custom/Dashboard/LiveMeasurements.jsx'
+import StatisticsCard from 'custom/Dashboard/StatisticsCard.jsx'
 
-import Radios from 'components/Dashboard/Radios.jsx'
-import Dates from 'components/Dashboard/Dates.jsx'
+import Radios from 'custom/Dashboard/Radios.jsx'
+import Dates from 'custom/Dashboard/Dates.jsx'
 import ReactLoading from 'react-loading';
-import ErrorPage from 'components/ErrorPage/ErrorPage.jsx'
+import ErrorPage from 'custom/ErrorPage/ErrorPage.jsx'
 var moment = require('moment')
 
 class Dashboard extends Component {

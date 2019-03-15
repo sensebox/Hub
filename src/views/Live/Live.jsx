@@ -6,8 +6,8 @@ import NotificationSystem from 'react-notification-system';
 import {style} from "variables/Variables.jsx";
 import 'assets/sass/custom.css'
 import HighchartsReact from 'highcharts-react-official'
-import GraphEdit from 'components/Live/GraphEdit'
-import Network from 'components/Live/Network'
+import GraphEdit from 'custom/Live/GraphEdit'
+import Network from 'custom/Live/Network'
 global.Highcharts = require('highcharts');
 require('highcharts/modules/exporting')(global.Highcharts);
 require('highcharts/modules/export-data')(global.Highcharts);
