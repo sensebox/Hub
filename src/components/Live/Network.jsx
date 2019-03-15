@@ -262,9 +262,7 @@ class Network extends Component{
                     host:'mqtt.sensebox.de',
                     port:'1884',
                     checkbox:true,
-                    username:"mqtt-experimente:experimente",
-                    password:'experimente'
-                })
+                    })
                 : this.setState({
                     host:'',
                     port:'',
