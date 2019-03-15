@@ -1,13 +1,11 @@
 import React,{Component} from 'react'
-import Button from 'components/CustomButton/CustomButton';
-import { Grid, Row, Col,FormControl, ControlLabel,FormGroup,Panel } from "react-bootstrap";
+import { Grid, Row, Col } from "react-bootstrap";
 import 'assets/skins/all.css'
 import { Card } from "components/Card/Card.jsx";
 import NotificationSystem from 'react-notification-system';
 import {style} from "variables/Variables.jsx";
 import 'assets/sass/custom.css'
 import HighchartsReact from 'highcharts-react-official'
-import Collapsible from 'react-collapsible';
 import GraphEdit from 'components/Live/GraphEdit'
 import Network from 'components/Live/Network'
 global.Highcharts = require('highcharts');
@@ -15,6 +13,7 @@ require('highcharts/modules/exporting')(global.Highcharts);
 require('highcharts/modules/export-data')(global.Highcharts);
 require('highcharts/modules/no-data-to-display')(global.Highcharts);
 
+// eslint-disable-next-line
 var mqtt = require('mqtt')
 var options = {
     chart: {
@@ -40,7 +39,7 @@ var options = {
 
   };
 
-
+// eslint-disable-next-line
 var client;
 /*
     The live page should show live measurements by a sensor
@@ -86,7 +85,10 @@ class Live extends Component {
             if(chart.get(topic) && chart.get(topic+'_ax')){
             chart.get(topic).remove(false);
             chart.get(topic+'_ax').remove(false);
-        }})
+            return null;
+        }
+            return null;
+        })
 
         chart.redraw();
     }
@@ -109,9 +111,8 @@ class Live extends Component {
     setAxes(topics){
         let chart = this.myRef.current.chart 
         let toggle = false
-        console.log("Creating an axis for each topic ... ")
         topics.map((topic)=>{
-            if(chart.get(topic+'_ax')) return
+            if(chart.get(topic+'_ax')) return null;
             chart.addAxis({
                 id:topic+'_ax',
                 title:{
@@ -126,7 +127,8 @@ class Live extends Component {
                 yAxis:topic+'_ax',
                 data:[]
             })
-            toggle = !toggle
+            toggle = !toggle;
+            return null;
         })
         this.setState({topics:topics})
     }

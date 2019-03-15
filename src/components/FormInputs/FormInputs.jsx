@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { FormGroup, ControlLabel, FormControl, Row } from "react-bootstrap";
-import Button from '../CustomButton/CustomButton'
 function FieldGroup({ label, ...props }) {
   return (
     <FormGroup>

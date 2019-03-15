@@ -1,5 +1,5 @@
-import React, { Component, forwardRef, useRef, useImperativeMethods } from "react";
-import { Grid, Row, Col ,Panel} from "react-bootstrap";
+import React, { Component } from "react";
+import { Grid, Row, Col} from "react-bootstrap";
 import 'assets/skins/all.css'
 import LiveMeasurements from 'components/Dashboard/LiveMeasurements.jsx'
 import StatisticsCard from 'components/Dashboard/StatisticsCard.jsx'
@@ -50,6 +50,7 @@ class Dashboard extends Component {
         .then(()=>{
             this.state.sensors.map((sensor)=>{
                 this.getStatistics(sensor._id,sensor.title);
+                return null;
             })
         })
         .catch(function(error){
@@ -69,6 +70,7 @@ class Dashboard extends Component {
         })
         .then((json)=>{
             this.setState((prevState)=>{
+                // eslint-disable-next-line
                 data:prevState.data.push({
                     typ:title,data:json})})
         })
@@ -96,7 +98,7 @@ class Dashboard extends Component {
         let newSelected = this.state.selected;
        if(!checked){
             newSelected = newSelected.filter((sensor)=>{
-                return sensor !=id
+                return sensor !==id
             })
         }
         else{
@@ -152,6 +154,7 @@ class Dashboard extends Component {
                         this.refs.Stats.reloadGraph();
                 })
             })
+            return null;
             })
         })
 

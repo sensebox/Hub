@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
-import Collapsible from 'react-collapsible';
 import { StatsCard } from "components/StatsCard/StatsCard.jsx";
-import { Grid, Row, Col ,Panel} from "react-bootstrap";
+import { Col ,Panel} from "react-bootstrap";
 
 import ReactLoading from 'react-loading';
 

@@ -1,6 +1,6 @@
 import React,{Component} from 'react'
 import Button from 'components/CustomButton/CustomButton'
-import {Grid,Row,Col,FormControl,ControlLabel,FormGroup,Panel} from 'react-bootstrap'
+import {Grid,Row,Col,ControlLabel,Panel} from 'react-bootstrap'
 import Card from 'components/Card/Card'
 import Collapsible from 'react-collapsible';
 import {MdKeyboardArrowDown} from 'react-icons/md'
@@ -71,19 +71,14 @@ class Network extends Component{
     changetopic(e){
         
         let placeInArray = e.target.id
-        let input
-        this.state.host==='mqtt.dioty.co' ? input = '/'+this.state.username+'/' + e.target.value
-                                          : input = e.target.value
+        let input = e.target.value
         var newTopics = this.state.topics
         newTopics[placeInArray] = input     
         this.setState({topics:newTopics})
+        console.log(newTopics)
     }
     clearGraph(){
         this.props.clearGraph(this.state.topics)
-    }
-    changeport(e){
-        let port = e.target.value
-        this.setState({port})
     }
     handleMQTT(){
         if(client)client.end()
@@ -135,9 +130,7 @@ class Network extends Component{
             // On connection subscribe to the topic and create according axes for the values
             client.subscribe(that.state.topics, function (err,granted) {
              if (!err) {
-                console.log("Client Subscribe:","Succesfully connected to the given topics!")
                 that.props.setAxes(that.state.topics)
-                console.log("Done!Showing values(if there are any)now!")
                 that.props.notifications.addNotification({
                     title: (<span data-notify="icon" className="pe-7s-video"></span>),
                     message: (
@@ -151,7 +144,6 @@ class Network extends Component{
                 });
             }
             else{
-                console.log("Error found when subscribing:",err.message)
                 that.props.notifications.addNotification({
                     title: (<span data-notify="icon" className="pe-7s-close-circle"></span>),
                     message: (
@@ -213,13 +205,13 @@ class Network extends Component{
 
     removeTopic(e){
         var newInput = this.state.inputs.filter((input)=>{
-            return input != e.target.name
+            return input !== e.target.name
         })
         let regExp = /[0-9]/g
         let placeInArray = e.target.name.match(regExp)
         
         var newTopics = this.state.topics.filter((topic,index)=>{
-            return parseInt(placeInArray) != index
+            return parseInt(placeInArray) !== index
         })
         this.props.clearGraph([this.state.topics[placeInArray]])
         this.setState({inputs:newInput,topics:newTopics})
@@ -274,7 +266,6 @@ class Network extends Component{
     }
 
     own(e){
-        let checked = e.target.checked
         this.handleRadio(e)
         this.setState({
             host:'',

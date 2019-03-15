@@ -79,6 +79,7 @@ class Go extends Component {
                 <Carousel.Item>
                     <img alt="senseBoxGo" className="d-block w-100" width="100%" height="100%" src={img}/>
                     <Carousel.Caption>
+                        {/*  eslint-disable-next-line */}
                     <h3 style={{'color':'black'}}></h3>
                 </Carousel.Caption>
                 </Carousel.Item>

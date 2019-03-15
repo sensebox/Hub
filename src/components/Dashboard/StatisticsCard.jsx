@@ -1,5 +1,4 @@
-import React, { Component,  forwardRef, useRef, useImperativeMethods } from "react";
-import { Grid, Row, Col ,Panel} from "react-bootstrap";
+import React, { Component } from "react";
 import { Card } from "components/Card/Card.jsx";
 
 import Highcharts from 'highcharts'
@@ -124,13 +123,13 @@ class StatisticsCard extends Component {
 
     createXAxis(data){
 
-        const length = data[0].data.length;
        // const to = moment(data[0].createdAt).format('YYYY-MM-DD')
        // const from = moment(data[length-1].createdAt).format('YYYY-MM-DD')
         
         var dateArray = []
         data[0].data.map((measurement)=>{
-            dateArray.push(moment(measurement.createdAt).format("DD.MM.YYYY HH:mm"))
+            dateArray.push(moment(measurement.createdAt).format("DD.MM.YYYY HH:mm"));
+            return null;
         })
         dateArray = dateArray.reverse()
 
